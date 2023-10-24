@@ -1,0 +1,45 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34018.315
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "01-Apresentation", "01-Apresentation", "{255C5CAD-8566-425A-A42C-937D089A78D6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "02-Application", "02-Application", "{509F6773-F0B5-4F95-82DA-26E994C71EF2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "04-Infrastructure", "04-Infrastructure", "{BE9D2013-87D6-4EF6-8FB8-D3909323C6E2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "03-Domain", "03-Domain", "{AB143FFE-AA9F-44B1-BAB3-DAEE444D2991}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "05-Entities", "05-Entities", "{1D3CDFDA-DEB2-4221-8F9F-A46B9AFBD6B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Entities", "Entities\Entities.csproj", "{068603D4-80A5-45DE-B2A0-6B60D59FF3E7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Infrastructure\Infrastructure.csproj", "{82AF0AA6-73CE-478D-9F36-E77C6ED44664}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{068603D4-80A5-45DE-B2A0-6B60D59FF3E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{068603D4-80A5-45DE-B2A0-6B60D59FF3E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{068603D4-80A5-45DE-B2A0-6B60D59FF3E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{068603D4-80A5-45DE-B2A0-6B60D59FF3E7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82AF0AA6-73CE-478D-9F36-E77C6ED44664}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82AF0AA6-73CE-478D-9F36-E77C6ED44664}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82AF0AA6-73CE-478D-9F36-E77C6ED44664}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82AF0AA6-73CE-478D-9F36-E77C6ED44664}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{068603D4-80A5-45DE-B2A0-6B60D59FF3E7} = {1D3CDFDA-DEB2-4221-8F9F-A46B9AFBD6B5}
+		{82AF0AA6-73CE-478D-9F36-E77C6ED44664} = {BE9D2013-87D6-4EF6-8FB8-D3909323C6E2}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A063B0BD-35F0-47E4-8A00-8B20098C3694}
+	EndGlobalSection
+EndGlobal
