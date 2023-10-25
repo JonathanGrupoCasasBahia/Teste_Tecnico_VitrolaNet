@@ -19,7 +19,7 @@ namespace Domain.Services
             {
                 throw new ArgumentException("Nome do gênero musical inválido.");
             }
-            var generoExiste = _IRepositoryGeneroMusical.GetEntityByName(NomeGeneroMusical);
+            var generoExiste = await _IRepositoryGeneroMusical.GetEntityByName(NomeGeneroMusical);
             if (generoExiste != null)
             {
                 throw new InvalidOperationException("O gênero musical já existe no catálogo.");
@@ -45,14 +45,21 @@ namespace Domain.Services
             {
                 throw new ArgumentException("Nome do gênero musical inválido.");
             }
-            var generoExiste = _IRepositoryGeneroMusical.GetEntityByName(NovoNomeGeneroMusical);
-            if (generoExiste != null)
+            var generoExiste = await _IRepositoryGeneroMusical.GetEntityByID(Id);
+            if (generoExiste == null)
             {
-                throw new InvalidOperationException("O gênero musical já existe no catálogo.");
+                throw new InvalidOperationException("O gênero musical não existe no catálogo.");
+            }
+            var novoNomeGerenoExiste = await _IRepositoryGeneroMusical.GetEntityByName(NovoNomeGeneroMusical);
+
+            if (novoNomeGerenoExiste != null)
+            {
+                throw new InvalidOperationException("O novo nome do gênero musical já existe no catálogo.");
             }
 
-            var novoGenero = new GeneroMusical { Nome = NovoNomeGeneroMusical };
-            await _IRepositoryGeneroMusical.Update(novoGenero);
+
+            generoExiste.Nome = NovoNomeGeneroMusical;
+            await _IRepositoryGeneroMusical.Update(generoExiste);
         }
     }
 }

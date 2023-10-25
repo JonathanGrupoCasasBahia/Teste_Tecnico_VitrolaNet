@@ -1,4 +1,5 @@
 ﻿using ApplicationApp.Interfaces;
+using Domain.Interfaces;
 using Domain.Services;
 using Entities.Entities;
 using System;
@@ -11,9 +12,9 @@ namespace ApplicationApp.OpenApp
 {
     public class GeneroMusicalApp : IGeneroMusicalApp
     {
-        private readonly ServiceGeneroMusical _IServiceGeneroMusical;
+        private readonly IServiceGeneroMusical _IServiceGeneroMusical;
 
-        public GeneroMusicalApp (ServiceGeneroMusical IServiceGeneroMusical)
+        public GeneroMusicalApp (IServiceGeneroMusical IServiceGeneroMusical)
         {
             _IServiceGeneroMusical = IServiceGeneroMusical;
         }

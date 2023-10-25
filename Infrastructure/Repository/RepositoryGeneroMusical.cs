@@ -5,7 +5,7 @@ using System.Data;
 
 namespace Infrastructure.Repository
 {
-    internal class RepositoryGeneroMusical : IRepositoryGeneroMusical
+    public class RepositoryGeneroMusical : IRepositoryGeneroMusical
     {
         private readonly string _connectionString;
 
@@ -57,7 +57,7 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("SELECT * FROM GeneroMusical Where Nome = @nome", connection))
+                using (var command = new NpgsqlCommand("SELECT * FROM generomusical Where nome = @nome", connection))
                 {
                     command.Parameters.AddWithValue("nome", NomeGeneroMusical);
 
@@ -101,7 +101,7 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("UPDATE GeneroMusical Set Nome = @nome where Id = @id", connection))
+                using (var command = new NpgsqlCommand("UPDATE generomusical Set nome = @nome where Id = @id", connection))
                 {
                     command.Parameters.AddWithValue("nome", GeneroMusical.Nome);
                     command.Parameters.AddWithValue("id", GeneroMusical.Id);
