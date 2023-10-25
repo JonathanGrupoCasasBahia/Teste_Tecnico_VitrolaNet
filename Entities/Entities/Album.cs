@@ -1,13 +1,6 @@
-﻿using Entities.Notifications;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Entities.Entities
+﻿namespace Entities.Entities
 {
-    public class Album : Notifies
+    public class Album 
     {
         public int IdAlbum { get; set; }
 
