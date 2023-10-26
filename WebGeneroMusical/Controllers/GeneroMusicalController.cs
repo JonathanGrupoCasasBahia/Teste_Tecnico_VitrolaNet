@@ -32,16 +32,16 @@ namespace WebGeneroMusical.Controllers
         [Produces("application/json")]
         [HttpPost("/api/AdicionarGeneroMusical")]
 
-        public async Task AdicionarGeneroMusical(string NomeGeneroMusical)
+        public async Task AdicionarGeneroMusical(string nome)
         {
-            await _IGeneneroMusicalApp.Add(NomeGeneroMusical);
+            await _IGeneneroMusicalApp.Add(nome);
         }
 
         [Produces("application/json")]
         [HttpPut("/api/AtualizarGeneroMusical")]
-        public async Task AtualizarGeneroMusical(int Id, string NovoGeneroMusical)
+        public async Task AtualizarGeneroMusical(int id, string novoNome)
         {
-            await _IGeneneroMusicalApp.Update(Id,NovoGeneroMusical);
+            await _IGeneneroMusicalApp.Update(id, novoNome);
         }
     }
 }

@@ -4,13 +4,13 @@ namespace Infrastructure.Interfaces
 {
     public interface IRepositoryGeneroMusical
     {
-        Task Add(GeneroMusical GeneroMusical);
+        Task Add(string nome);
 
-        Task Update(GeneroMusical GeneroMusical);
+        Task Update(int Id, string novoNome);
 
         Task<GeneroMusical> GetEntityByID(int Id);
 
-        Task<GeneroMusical?> GetEntityByName(string Name);
+        Task<GeneroMusical> GetEntityByName(string Name);
 
         Task<List<GeneroMusical>> List();
     }

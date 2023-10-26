@@ -8,6 +8,8 @@ using Infrastructure.Repository;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+//Configuration
 var configuration = new ConfigurationBuilder()
     .SetBasePath(Directory.GetCurrentDirectory())
     .AddJsonFile("appsettings.json")
@@ -25,10 +27,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton(_ => connectionString);
+
+//GeneroMusical
 builder.Services.AddSingleton<IRepositoryGeneroMusical, RepositoryGeneroMusical>();
 builder.Services.AddSingleton<IGeneroMusicalApp, GeneroMusicalApp>();
 builder.Services.AddSingleton<IServiceGeneroMusical, ServiceGeneroMusical>();
-
 builder.Services.AddSingleton<IRepositoryGeneroMusical>(sp =>
 {
     var configuration = sp.GetRequiredService<IConfiguration>();
@@ -36,7 +39,20 @@ builder.Services.AddSingleton<IRepositoryGeneroMusical>(sp =>
     return new RepositoryGeneroMusical(connectionString);
 });
 
-// Create an instance of ContextBase and initialize the database
+//Artista
+builder.Services.AddSingleton<IRepositoryArtista, RepositoryArtista>();
+builder.Services.AddSingleton<IArtistaApp, ArtistaApp>();
+builder.Services.AddSingleton<IServiceArtista, ServiceArtista>();
+builder.Services.AddSingleton<IRepositoryArtista>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var connectionString = configuration.GetConnectionString("DefaultConnection");
+    return new RepositoryArtista(connectionString);
+});
+
+
+
+// criar instancia da ContextBase e initializar o database
 var contextBase = new ContextBase(connectionString);
 contextBase.InicializaDataBase();
 

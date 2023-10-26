@@ -9,9 +9,9 @@ namespace ApplicationApp.Interfaces
 {
     public interface IGeneroMusicalApp
     {
-        Task Add(string NomeGeneroMusical);
+        Task Add(string nome);
 
-        Task Update(int Id, string NovoNomeGeneroMusical);
+        Task Update(int id, string novoNome);
 
         Task<GeneroMusical> GetEntityByID(int Id);
 

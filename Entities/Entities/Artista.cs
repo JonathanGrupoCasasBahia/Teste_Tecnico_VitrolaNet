@@ -10,6 +10,6 @@
 
         public GeneroMusical GeneroMusical { get; set; }
 
-        public List<Album> Albums { get; set; }
+        public List<Album> Albuns { get; set; }
     }
 }

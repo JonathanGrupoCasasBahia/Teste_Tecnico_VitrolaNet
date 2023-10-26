@@ -19,9 +19,9 @@ namespace ApplicationApp.OpenApp
             _IServiceGeneroMusical = IServiceGeneroMusical;
         }
 
-        public async Task Add(string NomeGeneroMusical)
+        public async Task Add(string nome)
         {
-            await _IServiceGeneroMusical.Add(NomeGeneroMusical);
+            await _IServiceGeneroMusical.Add(nome);
         }
 
         public async Task<GeneroMusical> GetEntityByID(int Id)
@@ -34,9 +34,9 @@ namespace ApplicationApp.OpenApp
             return await _IServiceGeneroMusical.List();
         }
 
-        public async Task Update(int Id, string NovoNomeGeneroMusical)
+        public async Task Update(int id, string novoNome)
         {
-            await _IServiceGeneroMusical.Update(Id, NovoNomeGeneroMusical);
+            await _IServiceGeneroMusical.Update(id, novoNome);
         }
     }
 }

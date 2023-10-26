@@ -26,12 +26,19 @@ namespace Domain.Services
             }
 
             var novoGenero = new GeneroMusical { Nome = NomeGeneroMusical };
-            await _IRepositoryGeneroMusical.Add(novoGenero);
+
+            await _IRepositoryGeneroMusical.Add(novoGenero.Nome);
         }
 
-        public Task<GeneroMusical> GetEntityByID(int Id)
+        public async Task<GeneroMusical> GetEntityByID(int Id)
         {
-            return _IRepositoryGeneroMusical.GetEntityByID(Id);
+            var generoExiste = await _IRepositoryGeneroMusical.GetEntityByID(Id);
+            if (generoExiste == null)
+            {
+                throw new InvalidOperationException("O gênero musical não existe no catálogo.");
+            }
+
+            return await _IRepositoryGeneroMusical.GetEntityByID(Id);
         }
 
         public async Task<List<GeneroMusical>> List()
@@ -59,7 +66,8 @@ namespace Domain.Services
 
 
             generoExiste.Nome = NovoNomeGeneroMusical;
-            await _IRepositoryGeneroMusical.Update(generoExiste);
+
+            await _IRepositoryGeneroMusical.Update(Id, generoExiste.Nome);
         }
     }
 }

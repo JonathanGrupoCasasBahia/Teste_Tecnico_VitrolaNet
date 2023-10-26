@@ -14,7 +14,7 @@ namespace Infrastructure.Repository
             _connectionString = connectionString;
         }
 
-        public async Task Add(GeneroMusical GeneroMusical)
+        public async Task Add(string Nome)
         {
             using(var connection = new NpgsqlConnection(_connectionString))
             {
@@ -22,7 +22,7 @@ namespace Infrastructure.Repository
 
                 using (var command = new NpgsqlCommand("INSERT INTO GeneroMusical (Nome) VALUES (@nome)",connection)) 
                 {
-                    command.Parameters.AddWithValue("nome", GeneroMusical.Nome);
+                    command.Parameters.AddWithValue("nome",Nome);
 
                     await command.ExecuteNonQueryAsync();
                 }
@@ -95,7 +95,7 @@ namespace Infrastructure.Repository
             }
         }
 
-        public async Task Update(GeneroMusical GeneroMusical)
+        public async Task Update(int Id, string NovoNome)
         {
             using (var connection = new NpgsqlConnection(_connectionString))
             {
@@ -103,8 +103,8 @@ namespace Infrastructure.Repository
 
                 using (var command = new NpgsqlCommand("UPDATE generomusical Set nome = @nome where Id = @id", connection))
                 {
-                    command.Parameters.AddWithValue("nome", GeneroMusical.Nome);
-                    command.Parameters.AddWithValue("id", GeneroMusical.Id);
+                    command.Parameters.AddWithValue("nome", NovoNome);
+                    command.Parameters.AddWithValue("id", Id);
 
                     await command.ExecuteNonQueryAsync();
                 }
