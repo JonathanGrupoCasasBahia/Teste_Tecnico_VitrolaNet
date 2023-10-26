@@ -17,7 +17,7 @@ namespace ApplicationApp.Interfaces
 
         Task<Artista> GetEntityByID(int Id);
 
-        Task<Artista> GetEntityByName(string Nome);
+        Task<List<Artista>> GetEntityByName(string Nome);
 
         Task<List<Artista>> List();
     }

@@ -31,7 +31,7 @@ namespace WebGeneroMusical.Controllers
 
         [HttpGet("/api/GetArtistaName")]
         [Produces("application/json")]
-        public async Task<Artista> GetArtistaName(string Nome)
+        public async Task<List<Artista>> GetArtistaName(string Nome)
         {
             return await _IArtistaApp.GetEntityByName(Nome);
         }

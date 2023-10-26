@@ -19,7 +19,7 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("INSERT INTO artista (nome, idgenero) VALUES (@nome,@idgenero)"))
+                using (var command = new NpgsqlCommand("INSERT INTO artista (nome, idgenero) VALUES (@nome,@idgenero)", connection))
                 {
                     command.Parameters.AddWithValue("nome", NomeArtista);
                     command.Parameters.AddWithValue("idgenero", IdGenero);
@@ -31,83 +31,104 @@ namespace Infrastructure.Repository
 
         public async Task Delete(int Id)
         {
-            using (var connection = new Npgsql.NpgsqlConnection(_connectionString))
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("DELETE artista where idartista = @idartista"))
+                using (var command = new NpgsqlCommand("DELETE from artista where id = @idartista", connection))
                 {
                     command.Parameters.AddWithValue("idartista", Id);
 
                     await command.ExecuteNonQueryAsync();
-                }
-                
+                }                
             }
         }
 
         public async Task<Artista> GetEntityByID(int Id)
         {
-            using(var connection = new Npgsql.NpgsqlConnection(_connectionString))
+            using(var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
 
-                using( var command = new NpgsqlCommand("SELECT * FROM artista where idartista = @id"))
+                using( var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, generomusical.id as idGenero ,generomusical.nome as GeneroMusical, album.nome as Nomealbum " +
+                                                       "FROM artista " +
+                                                       "INNER JOIN generomusical ON artista.idgenero = generomusical.id " +
+                                                       "LEFT JOIN album ON artista.id = album.idartista " +
+                                                       "where artista.id = @id", connection))
                 {
                     command.Parameters.AddWithValue("id", Id);
-
-                    using( var reader = await command.ExecuteReaderAsync())
-                    {
-                        if(reader.Read())
-                        {
-                            return MapFromDataReader(reader);
-                        }
-                    }
-                }
-            }
-            return null;
-        }
-
-        public async Task<Artista> GetEntityByName(string TrechoNome)
-        {
-            using (var connection = new Npgsql.NpgsqlConnection(_connectionString))
-            {
-                await connection.OpenAsync();
-
-                using (var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, generomusical.nome as GeneroMusical, album.nome as Nomealbum"+
-                                                       "FROM artista"+
-                                                       "INNER JOIN generomusical ON artista.idgenero = generomusica.id"+
-                                                       "LEFT JOIN album ON artista.id = album.idartista"+
-                                                       "where artista.nome LIKE @trechoNome"))
-                {
-                    command.Parameters.AddWithValue("trechoNome", TrechoNome);
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         Artista artista = null;
 
-                        while(reader.Read())
+                        while (await reader.ReadAsync())
                         {
-                            if(artista == null)
+                            if (artista == null)
                             {
+
                                 artista = new Artista()
                                 {
-                                    Id = (int)reader["Id"],
+                                    Id = (int)reader["id"],
                                     Nome = (string)reader["nomeArtista"],
-                                    GeneroMusical = (GeneroMusical)reader["GeneroMusical"],
+                                    GeneroMusical = (string)reader["GeneroMusical"],
+                                    IdGenero = (int)reader["idgenero"],
                                     Albuns = new List<Album>()
                                 };
                             }
                             string albumNome = reader["Nomealbum"] as string;
                             if (!string.IsNullOrWhiteSpace(albumNome))
                             {
-                                artista.Albuns.Add(new Album { Nome = albumNome});
+                                artista.Albuns.Add(new Album { Nome = albumNome });
                             }
                         }
                         return artista;
                     }
                 }
             }
-            return null;
+        }
+
+        public async Task<List<Artista>> GetEntityByName(string TrechoNome)
+        {
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, generomusical.id as idGenero ,generomusical.nome as GeneroMusical, album.nome as Nomealbum "+
+                                                       "FROM artista "+
+                                                       "INNER JOIN generomusical ON artista.idgenero = generomusical.id "+
+                                                       "LEFT JOIN album ON artista.id = album.idartista "+
+                                                       "where artista.nome LIKE '%' || @trechoNome || '%'", connection))
+                {
+                    command.Parameters.AddWithValue("trechoNome", TrechoNome);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        var Artistas = new List<Artista>();
+
+                        while (await reader.ReadAsync())
+                        {
+                            Artista artista = new Artista()
+                            {
+                                Id = (int)reader["id"],
+                                Nome = (string)reader["nomeArtista"],
+                                GeneroMusical = (string)reader["GeneroMusical"],
+                                IdGenero = (int)reader["idgenero"],
+                                Albuns = new List<Album>()
+                            };
+
+                            string albumNome = reader["Nomealbum"] as string;
+                            if (!string.IsNullOrWhiteSpace(albumNome))
+                            {
+                                artista.Albuns.Add(new Album { Nome = albumNome });
+                            }
+                            Artistas.Add(artista);
+                        }
+                        return Artistas;
+                    }
+                }
+            }
+            
         }
 
         public async Task<List<Artista>> List()
@@ -116,15 +137,32 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using(var command = new NpgsqlCommand("SELECT * FROM artista"))
+                using (var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, generomusical.id as idGenero ,generomusical.nome as GeneroMusical, album.nome as Nomealbum " +
+                                                       "FROM artista " +
+                                                       "INNER JOIN generomusical ON artista.idgenero = generomusical.id " +
+                                                       "LEFT JOIN album ON artista.id = album.idartista", connection))
                 {
-                    using( var reader = await command.ExecuteReaderAsync())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
                         var Artistas = new List<Artista>();
 
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
-                            Artistas.Add(MapFromDataReader(reader));
+                            Artista artista = new Artista()
+                            {
+                                Id = (int)reader["id"],
+                                Nome = (string)reader["nomeArtista"],
+                                GeneroMusical = (string)reader["GeneroMusical"],
+                                IdGenero = (int)reader["idgenero"],
+                                Albuns = new List<Album>()
+                            };
+
+                            string albumNome = reader["Nomealbum"] as string;
+                            if (!string.IsNullOrWhiteSpace(albumNome))
+                            {
+                                artista.Albuns.Add(new Album { Nome = albumNome });
+                            }
+                            Artistas.Add(artista);
                         }
                         return Artistas;
                     }
@@ -138,7 +176,7 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("UPDATE artista SET nome = @novoNome, idgenero = @novoGenero where id = @id"))
+                using (var command = new NpgsqlCommand("UPDATE artista SET nome = @novoNome, idgenero = @novoGenero where id = @id", connection))
                 {
                     command.Parameters.AddWithValue("novoNome", NovoNomeArtista);
                     command.Parameters.AddWithValue("novoIdGenero", NovoIdGenero);

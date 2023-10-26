@@ -39,7 +39,7 @@ namespace Domain.Services
 
             if (generoExiste == null) 
             {
-                throw new InvalidOperationException("O gênero musical não existe no catálogo.");
+                throw new ArgumentException("O gênero musical não existe no catálogo.");
             }
 
             var novoArtista = new Artista{ Nome = NomeArtista };
@@ -53,7 +53,7 @@ namespace Domain.Services
 
             if (artistaExiste == null)
             {
-                throw new InvalidOperationException("O artista não existe.");
+                throw new ArgumentException("O artista não existe.");
             }
 
             await _IRepositoryArtista.Delete(Id);
@@ -61,12 +61,20 @@ namespace Domain.Services
 
         public async Task<Artista> GetEntityByID(int Id)
         {
-            return await _IRepositoryArtista.GetEntityByID(Id);
+            if (_IRepositoryArtista.GetEntityByID == null)
+            {
+                throw new ArgumentException("Id não encontrado.");
+            }
+                return await _IRepositoryArtista.GetEntityByID(Id);
         }
 
-        public async Task<Artista> GetEntityByName(string Name)
+        public async Task<List<Artista>> GetEntityByName(string TrechoNome)
         {
-            throw new NotImplementedException();
+            if(_IRepositoryArtista.GetEntityByName == null)
+            {
+                throw new ArgumentException ("Artista não existe.");
+            }
+            return await _IRepositoryArtista.GetEntityByName(TrechoNome);
         }
 
         public async Task<List<Artista>> List()
@@ -81,6 +89,13 @@ namespace Domain.Services
             if (artistaExiste == null)
             {
                 throw new InvalidOperationException("O artista não existe.");
+            }
+
+            var generoExiste = await _IRepositoryGeneroMusical.GetEntityByID(NovoIdGenero);
+
+            if (generoExiste == null)
+            {
+                throw new ArgumentException("O gênero musical não existe no catálogo.");
             }
 
             await _IRepositoryArtista.Update(Id, NovoNomeArtista, NovoIdGenero);

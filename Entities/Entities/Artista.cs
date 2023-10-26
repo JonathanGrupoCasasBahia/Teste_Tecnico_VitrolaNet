@@ -8,7 +8,7 @@
 
         public int IdGenero { get; set; }
 
-        public GeneroMusical GeneroMusical { get; set; }
+        public string GeneroMusical { get; set; }
 
         public List<Album> Albuns { get; set; }
     }

@@ -30,10 +30,10 @@ namespace ApplicationApp.OpenApp
 
         public async Task<Artista> GetEntityByID(int Id)
         {
-            return await GetEntityByID(Id);
+            return await _IServiceArtista.GetEntityByID(Id);
         }
 
-        public async Task<Artista> GetEntityByName(string Nome)
+        public async Task<List<Artista>> GetEntityByName(string Nome)
         {
             return await _IServiceArtista.GetEntityByName(Nome);
         }

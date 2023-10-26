@@ -12,7 +12,7 @@ namespace Infrastructure.Interfaces
 
         Task<Artista> GetEntityByID(int Id);
 
-        Task<Artista> GetEntityByName(string TrechoNome);
+        Task<List<Artista>> GetEntityByName(string TrechoNome);
 
         Task<List<Artista>> List();
     }
