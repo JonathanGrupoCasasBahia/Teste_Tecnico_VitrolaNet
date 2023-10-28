@@ -9,7 +9,5 @@
         public int Ordem { get; set; }
 
         public int IdAlbum { get; set; }
-
-        public Album Album { get; set;}
     }
 }

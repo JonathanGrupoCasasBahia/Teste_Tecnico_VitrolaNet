@@ -38,9 +38,9 @@ namespace ApplicationApp.OpenApp
             return await _IServiceAlbum.List();
         }
 
-        public async Task Update(string NovoNomeAlbum, int NovoAnoLancamentoAlbum, int NovoIdArtista)
+        public async Task Update(int IdAlbum, string NovoNomeAlbum, int NovoAnoLancamentoAlbum, int NovoIdArtista)
         {
-            await _IServiceAlbum.Update(NovoNomeAlbum, NovoAnoLancamentoAlbum, NovoIdArtista);
+            await _IServiceAlbum.Update(IdAlbum, NovoNomeAlbum, NovoAnoLancamentoAlbum, NovoIdArtista);
         }
     }
 }

@@ -51,6 +51,10 @@ namespace Domain.Services
             {
                 throw new ArgumentException("O album não existe.");
             }
+            if (albumExiste.Musicas.Count > 0)
+            {
+                throw new ArgumentException("Permitida a exclusão do album apenas se o mesmo estiver vazio.");
+            }
 
             await _IRepositoryAlbum.Delete(Id);
         }
@@ -82,7 +86,7 @@ namespace Domain.Services
             return await _IRepositoryAlbum.List();
         }
 
-        public async Task Update(string NovoNomeAlbum, int NovoAnoLancamentoAlbum, int NovoIdArtista)
+        public async Task Update(int IdAlbum, string NovoNomeAlbum, int NovoAnoLancamentoAlbum, int NovoIdArtista)
         {
             if (string.IsNullOrWhiteSpace(NovoNomeAlbum) || NovoNomeAlbum.Length > 20)
             {
@@ -108,7 +112,7 @@ namespace Domain.Services
                 IdArtista = NovoIdArtista
             };
 
-            await _IRepositoryAlbum.Add(novoAlbum.Nome, novoAlbum.AnoLancamento, novoAlbum.IdArtista);
+            await _IRepositoryAlbum.Update(IdAlbum, novoAlbum.Nome, novoAlbum.AnoLancamento, novoAlbum.IdArtista);
         }
     }
 }

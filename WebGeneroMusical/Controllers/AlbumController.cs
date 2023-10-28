@@ -45,9 +45,9 @@ namespace WebGeneroMusical.Controllers
 
         [HttpPut("/api/AtualizarAlbum")]
         [Produces("application/json")]
-        public async Task AtualizarAlbum(string NovoNomeAlbum, int NovoAnoLancamento, int NovoIdArtista)
+        public async Task AtualizarAlbum(int IdAlbum, string NovoNomeAlbum, int NovoAnoLancamento, int NovoIdArtista)
         {
-            await _IAlbumApp.Update(NovoNomeAlbum, NovoAnoLancamento, NovoIdArtista);
+            await _IAlbumApp.Update(IdAlbum, NovoNomeAlbum, NovoAnoLancamento, NovoIdArtista);
         }
 
         [HttpDelete("/api/ApagarAlbum")]

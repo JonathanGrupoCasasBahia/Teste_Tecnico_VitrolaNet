@@ -6,7 +6,7 @@ namespace Infrastructure.Interfaces
     {
         Task Add(string NomeAlbum, int AnoLancamento, int IdArtista);
 
-        Task Update(string NomeAlbum, int AnoLancamento, int IdArtista);
+        Task Update(int IdAlbum, string NomeAlbum, int AnoLancamento, int IdArtista);
 
         Task Delete(int Id);
 

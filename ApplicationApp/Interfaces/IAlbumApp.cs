@@ -11,7 +11,7 @@ namespace ApplicationApp.Interfaces
     {
         Task Add(string NomeAlbum, int AnoLancamentoAlbum, int IdArtista);
 
-        Task Update(string NovoNomeAlbum, int NovoAnoLancamentoAlbum, int NovoIdArtista);
+        Task Update(int IdAlbum, string NovoNomeAlbum, int NovoAnoLancamentoAlbum, int NovoIdArtista);
 
         Task Delete(int Id);
 

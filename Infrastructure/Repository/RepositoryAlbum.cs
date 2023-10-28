@@ -20,25 +20,28 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using(var command = new NpgsqlCommand("INSERT INTO album (nome, anolancamento, idartista) VALUES (@nomeAlbum, @anoLancamento, @idArtista",connection))
+                using(var command = new NpgsqlCommand("INSERT INTO album (nome, anolancamento, idartista) VALUES (@nomeAlbum, @anoLancamento, @idArtista)",connection))
                 {
                     command.Parameters.AddWithValue("nomeAlbum", NomeAlbum);
                     command.Parameters.AddWithValue("anoLancamento", AnoLancamento);
-                    command.Parameters.AddWithValue("nomeAlbum", IdArtista);
+                    command.Parameters.AddWithValue("idArtista", IdArtista);
 
                     await command.ExecuteNonQueryAsync();
                 }
             }
         }
 
-        public async Task Update(string NomeAlbum, int AnoLancamento, int IdArtista)
+        public async Task Update(int IdAlbum,string NomeAlbum, int AnoLancamento, int IdArtista)
         {
             using (var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("UPDATE album SET nome = @nomeAlbum, anolancamento = @anoLancamento, idartista = @idArtista", connection))
+                using (var command = new NpgsqlCommand("UPDATE album SET " +
+                                                       "nome = @nomeAlbum, anolancamento = @anoLancamento, idartista = @idArtista " +
+                                                       "where id = @idAlbum", connection))
                 {
+                    command.Parameters.AddWithValue("idAlbum", IdAlbum);
                     command.Parameters.AddWithValue("nomeAlbum", NomeAlbum);
                     command.Parameters.AddWithValue("anoLancamento", AnoLancamento);
                     command.Parameters.AddWithValue("nomeAlbum", IdArtista);
@@ -69,11 +72,11 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using( var command = new NpgsqlCommand("Select album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista = IdArtista" +
-                                                       "musica.nome as NomeMusica" +
-                                                       "from album" +
-                                                       "LEFT JOIN musica ON album.id = musica.id" +
-                                                       "where id = @id", connection))
+                using( var command = new NpgsqlCommand("Select album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista as IdArtista, " +
+                                                       "musica.nome as NomeMusica " +
+                                                       "from album " +
+                                                       "LEFT JOIN musica ON album.id = musica.id " +
+                                                       "where album.id = @id", connection))
                 {
                     command.Parameters.AddWithValue("id", Id);
 
@@ -113,13 +116,13 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("Select album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista = IdArtista" +
-                                                       "musica.nome as NomeMusica" +
-                                                       "from album" +
-                                                       "LEFT JOIN musica ON album.id = musica.id" +
-                                                       "where nome = @nomeAlbum", connection))
+                using (var command = new NpgsqlCommand("Select album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista as IdArtista, " +
+                                                       "musica.nome as NomeMusica " +
+                                                       "from album " +
+                                                       "LEFT JOIN musica ON album.id = musica.id " +
+                                                       "where album.nome = @nomeDoAlbum ", connection))
                 {
-                    command.Parameters.AddWithValue("nomeAlbum", NomeAlbum);
+                    command.Parameters.AddWithValue("nomeDoAlbum", NomeAlbum);
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
@@ -156,10 +159,10 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("Select album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista = IdArtista" +
-                                                       "musica.nome as NomeMusica" +
-                                                       "from album" +
-                                                       "LEFT JOIN musica ON album.id = musica.id", connection))
+                using (var command = new NpgsqlCommand("Select album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista as IdArtista, " +
+                                                       "musica.nome as NomeMusica, musica.id as idMusica, musica.idalbum as musicaIdAlbum " +
+                                                       "FROM album " +
+                                                       "LEFT JOIN musica ON album.id = musica.idalbum", connection))
                 {
                     using (var reader = await command.ExecuteReaderAsync())
                     {
