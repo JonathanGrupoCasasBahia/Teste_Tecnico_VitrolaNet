@@ -1,12 +1,6 @@
 ﻿using Domain.Interfaces;
 using Entities.Entities;
 using Infrastructure.Interfaces;
-using Infrastructure.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Domain.Services
 {
@@ -26,13 +20,6 @@ namespace Domain.Services
             if (string.IsNullOrWhiteSpace(NomeArtista) || NomeArtista.Length > 50)
             {
                 throw new ArgumentException("Nome do artista inválido.");
-            }
-
-            var artistaExiste = await _IRepositoryArtista.GetEntityByName(NomeArtista);
-
-            if (artistaExiste != null)
-            {
-                throw new InvalidOperationException("O artista já existe.");
             }
 
             var generoExiste = await _IRepositoryGeneroMusical.GetEntityByID(IdGenero);

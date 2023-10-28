@@ -35,15 +35,20 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("SELECT * FROM GeneroMusical Where Id = @Id", connection))
+                using (var command = new NpgsqlCommand("SELECT * FROM GeneroMusical Where Id = @IdGenero", connection))
                 {
-                    command.Parameters.AddWithValue("Id", Id);
+                    command.Parameters.AddWithValue("IdGenero", Id);
 
                     using (var reader = await command.ExecuteReaderAsync()) 
                     {
                         if(await reader.ReadAsync())
                         {
-                            return MapFromDataReader(reader);
+                            GeneroMusical generoMusical = new GeneroMusical()
+                            {
+                                Id = (int)reader["Id"],
+                                Nome = (string)reader["nome"]
+                            };
+                            return generoMusical;
                         }
                     }
                 }
@@ -57,15 +62,20 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("SELECT * FROM generomusical Where nome = @nome", connection))
+                using (var command = new NpgsqlCommand("SELECT * FROM generomusical Where nome = @nomegenero", connection))
                 {
-                    command.Parameters.AddWithValue("nome", NomeGeneroMusical);
+                    command.Parameters.AddWithValue("nomegenero", NomeGeneroMusical);
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         if (await reader.ReadAsync())
                         {
-                            return MapFromDataReader(reader);
+                            GeneroMusical generoMusical = new GeneroMusical()
+                            {
+                                Id = (int)reader["Id"],
+                                Nome = (string)reader["nome"]
+                            };
+                            return generoMusical;
                         }
                     }
                 }
@@ -87,7 +97,13 @@ namespace Infrastructure.Repository
                         
                         while (await reader.ReadAsync())
                         {
-                            GenerosMusicais.Add(MapFromDataReader(reader));
+                            GeneroMusical generoMusical = new GeneroMusical()
+                            {
+                                Id = (int)reader["id"],
+                                Nome = (string)reader["nome"]
+                            };
+
+                            GenerosMusicais.Add(generoMusical);
                         }
                         return GenerosMusicais;
                     }
@@ -111,13 +127,5 @@ namespace Infrastructure.Repository
             }
         }
 
-        private GeneroMusical MapFromDataReader(IDataRecord reader)
-        {
-            return new GeneroMusical
-            {
-                Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                Nome = reader.GetString(reader.GetOrdinal("Nome"))
-            };
-        }
     }
 }

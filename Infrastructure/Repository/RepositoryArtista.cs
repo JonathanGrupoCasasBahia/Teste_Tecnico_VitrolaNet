@@ -50,7 +50,9 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using( var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, generomusical.id as idGenero ,generomusical.nome as GeneroMusical, album.nome as Nomealbum " +
+                using( var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, " +
+                                                       "generomusical.id as idGenero ,generomusical.nome as GeneroMusical, " +
+                                                       "album.nome as Nomealbum " +
                                                        "FROM artista " +
                                                        "INNER JOIN generomusical ON artista.idgenero = generomusical.id " +
                                                        "LEFT JOIN album ON artista.id = album.idartista " +
@@ -66,7 +68,6 @@ namespace Infrastructure.Repository
                         {
                             if (artista == null)
                             {
-
                                 artista = new Artista()
                                 {
                                     Id = (int)reader["id"],
@@ -77,6 +78,7 @@ namespace Infrastructure.Repository
                                 };
                             }
                             string albumNome = reader["Nomealbum"] as string;
+
                             if (!string.IsNullOrWhiteSpace(albumNome))
                             {
                                 artista.Albuns.Add(new Album { Nome = albumNome });
@@ -176,7 +178,7 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("UPDATE artista SET nome = @novoNome, idgenero = @novoGenero where id = @id", connection))
+                using (var command = new NpgsqlCommand("UPDATE artista SET nome = @novoNome, idgenero = @novoIdGenero where id = @id", connection))
                 {
                     command.Parameters.AddWithValue("novoNome", NovoNomeArtista);
                     command.Parameters.AddWithValue("novoIdGenero", NovoIdGenero);
@@ -185,16 +187,6 @@ namespace Infrastructure.Repository
                     await command.ExecuteNonQueryAsync();
                 }
             }
-        }
-
-        private Artista MapFromDataReader(IDataRecord reader)
-        {
-            return new Artista
-            {
-                Id = reader.GetInt32(reader.GetOrdinal("Id")),
-                Nome = reader.GetString(reader.GetOrdinal("Nome")),
-                IdGenero = reader.GetInt32(reader.GetOrdinal("IdGenero"))
-            };
         }
     }
 }

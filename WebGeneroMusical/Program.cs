@@ -50,6 +50,17 @@ builder.Services.AddSingleton<IRepositoryArtista>(sp =>
     return new RepositoryArtista(connectionString);
 });
 
+//Album
+builder.Services.AddSingleton<IRepositoryAlbum, RepositoryAlbum>();
+builder.Services.AddSingleton<IAlbumApp, AlbumApp>();
+builder.Services.AddSingleton<IServiceAlbum, ServiceAlbum>();
+builder.Services.AddSingleton<IRepositoryAlbum>(sp =>
+{
+    var configuration = sp.GetRequiredService<IConfiguration>();
+    var connectionString = configuration.GetConnectionString("DefaultConnection");
+    return new RepositoryAlbum(connectionString);
+});
+
 
 
 // criar instancia da ContextBase e initializar o database

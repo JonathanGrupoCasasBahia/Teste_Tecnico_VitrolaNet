@@ -51,7 +51,7 @@ namespace WebGeneroMusical.Controllers
         }
 
         [Produces("application/json")]
-        [HttpPut("/api/DeletarArtista")]
+        [HttpDelete("/api/DeletarArtista")]
         public async Task DeletarArtista(int id)
         {
             await _IArtistaApp.Delete(id);
