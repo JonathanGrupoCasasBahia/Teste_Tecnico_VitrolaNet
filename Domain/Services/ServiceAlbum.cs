@@ -22,7 +22,7 @@ namespace Domain.Services
                 throw new ArgumentException("Nome do album inválido.");
             }
 
-            if (AnoLancamentoAlbum < 1 || AnoLancamentoAlbum.ToString().Length > 4)
+            if (AnoLancamentoAlbum.ToString().Length != 4)
             {
                 throw new ArgumentException("Ano de lançamento deve conter 4 caracteres.");
             }
@@ -93,7 +93,7 @@ namespace Domain.Services
                 throw new ArgumentException("Nome do album inválido.");
             }
 
-            if (NovoAnoLancamentoAlbum < 1 || NovoAnoLancamentoAlbum.ToString().Length > 4)
+            if (NovoAnoLancamentoAlbum.ToString().Length != 4)
             {
                 throw new ArgumentException("Ano de lançamento deve conter 4 caracteres.");
             }

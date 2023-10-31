@@ -52,7 +52,7 @@ namespace Infrastructure.Repository
 
                 using( var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, " +
                                                        "generomusical.id as idGenero ,generomusical.nome as GeneroMusical, " +
-                                                       "album.nome as Nomealbum " +
+                                                       "album.nome as Nomealbum , album.id as idAlbum, album.anoLancamento as AnoLancamentoAlbum , album.idartista " +
                                                        "FROM artista " +
                                                        "INNER JOIN generomusical ON artista.idgenero = generomusical.id " +
                                                        "LEFT JOIN album ON artista.id = album.idartista " +
@@ -77,11 +77,17 @@ namespace Infrastructure.Repository
                                     Albuns = new List<Album>()
                                 };
                             }
-                            string albumNome = reader["Nomealbum"] as string;
-
-                            if (!string.IsNullOrWhiteSpace(albumNome))
+                            if (reader["Nomealbum"] != DBNull.Value)
                             {
-                                artista.Albuns.Add(new Album { Nome = albumNome });
+                                int idAlbum = (int)reader["idAlbum"];
+                                string albumNome = (string)reader["Nomealbum"];
+                                int anoLancamento = (int)reader["AnoLancamentoAlbum"];
+                                int idArtista = (int)reader["idartista"];
+
+                                if (!string.IsNullOrWhiteSpace(albumNome))
+                                {
+                                    artista.Albuns.Add(new Album { Nome = albumNome, IdAlbum = idAlbum, AnoLancamento = anoLancamento, IdArtista = idArtista });
+                                }
                             }
                         }
                         return artista;
@@ -96,10 +102,12 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, generomusical.id as idGenero ,generomusical.nome as GeneroMusical, album.nome as Nomealbum "+
-                                                       "FROM artista "+
-                                                       "INNER JOIN generomusical ON artista.idgenero = generomusical.id "+
-                                                       "LEFT JOIN album ON artista.id = album.idartista "+
+                using (var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, " +
+                                                       "generomusical.id as idGenero ,generomusical.nome as GeneroMusical, " +
+                                                       "album.nome as Nomealbum , album.id as idAlbum, album.anoLancamento as AnoLancamentoAlbum , album.idartista " +
+                                                       "FROM artista " +
+                                                       "INNER JOIN generomusical ON artista.idgenero = generomusical.id " +
+                                                       "LEFT JOIN album ON artista.id = album.idartista " +
                                                        "where artista.nome LIKE '%' || @trechoNome || '%'", connection))
                 {
                     command.Parameters.AddWithValue("trechoNome", TrechoNome);
@@ -119,10 +127,17 @@ namespace Infrastructure.Repository
                                 Albuns = new List<Album>()
                             };
 
-                            string albumNome = reader["Nomealbum"] as string;
-                            if (!string.IsNullOrWhiteSpace(albumNome))
+                            if (reader["Nomealbum"] != DBNull.Value)
                             {
-                                artista.Albuns.Add(new Album { Nome = albumNome });
+                                int idAlbum = (int)reader["idAlbum"];
+                                string albumNome = (string)reader["Nomealbum"];
+                                int anoLancamento = (int)reader["AnoLancamentoAlbum"];
+                                int idArtista = (int)reader["idartista"];
+
+                                if (!string.IsNullOrWhiteSpace(albumNome))
+                                {
+                                    artista.Albuns.Add(new Album { Nome = albumNome, IdAlbum = idAlbum, AnoLancamento = anoLancamento, IdArtista = idArtista });
+                                }
                             }
                             Artistas.Add(artista);
                         }
@@ -139,7 +154,9 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, generomusical.id as idGenero ,generomusical.nome as GeneroMusical, album.nome as Nomealbum " +
+                using (var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, " +
+                                                       "generomusical.id as idGenero ,generomusical.nome as GeneroMusical, " +
+                                                       "album.nome as Nomealbum , album.id as idAlbum, album.anoLancamento as AnoLancamentoAlbum , album.idartista " +
                                                        "FROM artista " +
                                                        "INNER JOIN generomusical ON artista.idgenero = generomusical.id " +
                                                        "LEFT JOIN album ON artista.id = album.idartista", connection))
@@ -159,10 +176,17 @@ namespace Infrastructure.Repository
                                 Albuns = new List<Album>()
                             };
 
-                            string albumNome = reader["Nomealbum"] as string;
-                            if (!string.IsNullOrWhiteSpace(albumNome))
+                            if (reader["Nomealbum"] != DBNull.Value)
                             {
-                                artista.Albuns.Add(new Album { Nome = albumNome });
+                                int idAlbum = (int)reader["idAlbum"];
+                                string albumNome = (string)reader["Nomealbum"];
+                                int anoLancamento = (int)reader["AnoLancamentoAlbum"];
+                                int idArtista = (int)reader["idartista"];
+
+                                if (!string.IsNullOrWhiteSpace(albumNome))
+                                {
+                                    artista.Albuns.Add(new Album { Nome = albumNome, IdAlbum = idAlbum, AnoLancamento = anoLancamento, IdArtista = idArtista });
+                                }
                             }
                             Artistas.Add(artista);
                         }

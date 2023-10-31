@@ -35,11 +35,13 @@ namespace Infrastructure.Repository
             using( var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                using( var command = new NpgsqlCommand("UPDATE from musica SET nome = @novoNome, ordem = @novaOrdem, idalbum = @novoIdAlbum)", connection))
+                using( var command = new NpgsqlCommand("UPDATE musica SET nome = @novoNome, ordem = @novaOrdem, idalbum = @novoIdAlbum " +
+                                                       "where id = @id", connection))
                 {
                     command.Parameters.AddWithValue("novoNome", NovoNomeMusica);
                     command.Parameters.AddWithValue("novaOrdem", NovaOrdem);
                     command.Parameters.AddWithValue("novoIdAlbum", NovoIdAlbum);
+                    command.Parameters.AddWithValue("id", Id);
 
                     await command.ExecuteNonQueryAsync();
                 }
@@ -53,6 +55,7 @@ namespace Infrastructure.Repository
                 await connection.OpenAsync();
                 using( var command = new NpgsqlCommand("DELETE from musica where id = @idMusica", connection))
                 {
+                    command.Parameters.AddWithValue("idMusica", Id);
                     await command.ExecuteNonQueryAsync();
                 }
             }
@@ -76,6 +79,7 @@ namespace Infrastructure.Repository
                             {
                                 Id = (int)reader["id"],
                                 Nome = (string)reader["nome"],
+                                Ordem = (int)reader["ordem"],
                                 IdAlbum = (int)reader["idalbum"]
                             };
                         }return musica;
@@ -84,14 +88,62 @@ namespace Infrastructure.Repository
             }
         }
 
-        public Task<List<Musica>> GetEntityByName(string TrechoNomeMusica)
+        public async Task<List<Musica>> GetEntityByName(string TrechoNomeMusica)
         {
-            throw new NotImplementedException();
+            using(var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new NpgsqlCommand("Select * from musica where musica.nome like '%' || @trechoNomeMusica || '%'", connection))
+                {
+                    command.Parameters.AddWithValue("trechoNomeMusica", TrechoNomeMusica);
+                    using(var reader = await command.ExecuteReaderAsync())
+                    {
+                        var Musicas = new List<Musica>();
+
+                        while (await reader.ReadAsync())
+                        {
+                            Musica musica = new Musica()
+                            {
+                                Id = (int)reader["id"],
+                                Nome = (string)reader["nome"],
+                                IdAlbum = (int)reader["idalbum"],
+                                Ordem = (int)reader["ordem"]
+                            };
+                            Musicas.Add(musica);
+                        }
+                        return Musicas;
+                    }
+                }
+                
+            }
         }
 
-        public Task<List<Musica>> List()
+        public async Task<List<Musica>> List()
         {
-            throw new NotImplementedException();
+            using(var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new NpgsqlCommand("select * from musica", connection))
+                {
+                    using(var reader =  await command.ExecuteReaderAsync())
+                    {
+                        var  Musicas = new List<Musica>();
+
+                        while (await reader.ReadAsync())
+                        {
+                            Musica musica = new Musica()
+                            {
+                                Id = (int)reader["id"],
+                                Nome = (string)reader["nome"],
+                                IdAlbum = (int)reader["idalbum"],
+                                Ordem = (int)reader["ordem"],
+                            };
+                            Musicas.Add(musica);
+                        }
+                        return Musicas;
+                    }
+                }
+            }
         }
     }
 }

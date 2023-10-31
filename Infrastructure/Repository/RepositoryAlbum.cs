@@ -73,9 +73,9 @@ namespace Infrastructure.Repository
                 await connection.OpenAsync();
 
                 using( var command = new NpgsqlCommand("Select album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista as IdArtista, " +
-                                                       "musica.nome as NomeMusica " +
+                                                       "musica.nome as NomeMusica, musica.id as IdMusica, musica.ordem as Ordem " +
                                                        "from album " +
-                                                       "LEFT JOIN musica ON album.id = musica.id " +
+                                                       "Left Join musica ON album.id = musica.idAlbum " +
                                                        "where album.id = @id", connection))
                 {
                     command.Parameters.AddWithValue("id", Id);
@@ -97,32 +97,36 @@ namespace Infrastructure.Repository
                                     Musicas = new List<Musica>()
                                 };
                             }
-                            string musicaNome = reader["NomeMusica"] as string;
 
-                            if(!string.IsNullOrWhiteSpace(musicaNome))
+                            if (reader["NomeMusica"] != DBNull.Value)
                             {
-                                album.Musicas.Add(new Musica() {Nome = musicaNome});
+                                string musicaNome = (string)reader["NomeMusica"];
+                                int idMusica = (int)reader["IdMusica"];
+                                int ordem = (int)reader["Ordem"];
+                                int idAlbum = (int)reader["id"];
+                                album.Musicas.Add(new Musica { Id = idMusica, Nome = musicaNome, Ordem = ordem, IdAlbum = idAlbum });
                             }
-                        }return album;
+                        }
+                        return album;
                     }                    
                 }
                     
             }
         }
 
-        public async Task<List<Album>> GetEntityByName(string NomeAlbum)
+        public async Task<List<Album>> GetEntityByName(string TrechoNomeAlbum)
         {
             using (var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
 
                 using (var command = new NpgsqlCommand("Select album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista as IdArtista, " +
-                                                       "musica.nome as NomeMusica " +
+                                                       "musica.nome as NomeMusica, musica.id as IdMusica, musica.ordem as Ordem " +
                                                        "from album " +
-                                                       "LEFT JOIN musica ON album.id = musica.id " +
-                                                       "where album.nome = @nomeDoAlbum ", connection))
+                                                       "LEFT JOIN musica ON album.id = musica.idAlbum " +
+                                                       "where album.nome like '%' || @TrechoNomeAlbum ||'%'", connection))
                 {
-                    command.Parameters.AddWithValue("nomeDoAlbum", NomeAlbum);
+                    command.Parameters.AddWithValue("TrechoNomeAlbum", TrechoNomeAlbum);
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
@@ -139,10 +143,14 @@ namespace Infrastructure.Repository
                                 Musicas = new List<Musica>()
                             };
 
-                            string musicaNome = reader["NomeMusica"] as string;
-                            if (!string.IsNullOrWhiteSpace(musicaNome))
+
+                            if (reader["NomeMusica"] != DBNull.Value)
                             {
-                                album.Musicas.Add(new Musica() { Nome = musicaNome });
+                                string musicaNome = (string)reader["NomeMusica"];
+                                int idMusica = (int)reader["IdMusica"];
+                                int ordem = (int)reader["Ordem"];
+                                int idAlbum = (int)reader["id"];
+                                album.Musicas.Add(new Musica { Id = idMusica, Nome = musicaNome, Ordem = ordem, IdAlbum = idAlbum });
                             }
                             Albuns.Add(album);
                         }
@@ -160,7 +168,7 @@ namespace Infrastructure.Repository
                 await connection.OpenAsync();
 
                 using (var command = new NpgsqlCommand("Select album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista as IdArtista, " +
-                                                       "musica.nome as NomeMusica, musica.id as idMusica, musica.idalbum as musicaIdAlbum " +
+                                                       "musica.nome as NomeMusica, musica.ordem as OrdemMusica, musica.id as idMusica, musica.idalbum as musicaIdAlbum " +
                                                        "FROM album " +
                                                        "LEFT JOIN musica ON album.id = musica.idalbum", connection))
                 {
@@ -179,10 +187,13 @@ namespace Infrastructure.Repository
                                 Musicas = new List<Musica>()
                             };
 
-                            string musicaNome = reader["NomeMusica"] as string;
-                            if (!string.IsNullOrWhiteSpace(musicaNome))
+                            if (reader["NomeMusica"] != DBNull.Value)
                             {
-                                album.Musicas.Add(new Musica() { Nome = musicaNome });
+                                string musicaNome = (string)reader["NomeMusica"];
+                                int idMusica = (int)reader["IdMusica"];
+                                int ordem = (int)reader["OrdemMusica"];
+                                int idAlbum = (int)reader["id"];
+                                album.Musicas.Add(new Musica { Id = idMusica, Nome = musicaNome, Ordem = ordem, IdAlbum = idAlbum });
                             }
                             Albuns.Add(album);
                         }
