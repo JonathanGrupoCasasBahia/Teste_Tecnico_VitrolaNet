@@ -39,7 +39,7 @@ namespace Infrastructure.Repository
 
                 using (var command = new NpgsqlCommand("UPDATE album SET " +
                                                        "nome = @nomeAlbum, anolancamento = @anoLancamento, idartista = @idArtista " +
-                                                       "where id = @idAlbum", connection))
+                                                       "WHERE id = @idAlbum", connection))
                 {
                     command.Parameters.AddWithValue("idAlbum", IdAlbum);
                     command.Parameters.AddWithValue("nomeAlbum", NomeAlbum);
@@ -57,7 +57,7 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using( var command = new NpgsqlCommand("DELETE from album where id = @id",connection))
+                using( var command = new NpgsqlCommand("DELETE FROM album WHERE id = @id",connection))
                 {
                     command.Parameters.AddWithValue("id", Id);
 
@@ -72,11 +72,11 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using( var command = new NpgsqlCommand("Select album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista as IdArtista, " +
+                using( var command = new NpgsqlCommand("SELECT album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista as IdArtista, " +
                                                        "musica.nome as NomeMusica, musica.id as IdMusica, musica.ordem as Ordem " +
-                                                       "from album " +
-                                                       "Left Join musica ON album.id = musica.idAlbum " +
-                                                       "where album.id = @id", connection))
+                                                       "FROM album " +
+                                                       "LEFT JOIN musica ON album.id = musica.idAlbum " +
+                                                       "WHERE album.id = @id", connection))
                 {
                     command.Parameters.AddWithValue("id", Id);
 
@@ -94,7 +94,7 @@ namespace Infrastructure.Repository
                                     Nome = (string)reader["NomeAlbum"],
                                     AnoLancamento = (int)reader["AnoLancamento"],
                                     IdArtista = (int)reader["IdArtista"],
-                                    Musicas = new List<Musica>()
+                                    Musicas = new List<string>()
                                 };
                             }
 
@@ -104,7 +104,7 @@ namespace Infrastructure.Repository
                                 int idMusica = (int)reader["IdMusica"];
                                 int ordem = (int)reader["Ordem"];
                                 int idAlbum = (int)reader["id"];
-                                album.Musicas.Add(new Musica { Id = idMusica, Nome = musicaNome, Ordem = ordem, IdAlbum = idAlbum });
+                                album.Musicas.Add(musicaNome);
                             }
                         }
                         return album;
@@ -120,11 +120,11 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("Select album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista as IdArtista, " +
+                using (var command = new NpgsqlCommand("SELECT album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista as IdArtista, " +
                                                        "musica.nome as NomeMusica, musica.id as IdMusica, musica.ordem as Ordem " +
-                                                       "from album " +
+                                                       "FROM album " +
                                                        "LEFT JOIN musica ON album.id = musica.idAlbum " +
-                                                       "where album.nome like '%' || @TrechoNomeAlbum ||'%'", connection))
+                                                       "WHERE album.nome like '%' || @TrechoNomeAlbum ||'%'", connection))
                 {
                     command.Parameters.AddWithValue("TrechoNomeAlbum", TrechoNomeAlbum);
 
@@ -140,17 +140,15 @@ namespace Infrastructure.Repository
                                 Nome = (string)reader["NomeAlbum"],
                                 AnoLancamento = (int)reader["AnoLancamento"],
                                 IdArtista = (int)reader["IdArtista"],
-                                Musicas = new List<Musica>()
+                                Musicas = new List<string>()
                             };
 
 
                             if (reader["NomeMusica"] != DBNull.Value)
                             {
                                 string musicaNome = (string)reader["NomeMusica"];
-                                int idMusica = (int)reader["IdMusica"];
-                                int ordem = (int)reader["Ordem"];
-                                int idAlbum = (int)reader["id"];
-                                album.Musicas.Add(new Musica { Id = idMusica, Nome = musicaNome, Ordem = ordem, IdAlbum = idAlbum });
+
+                                album.Musicas.Add(musicaNome);
                             }
                             Albuns.Add(album);
                         }
@@ -167,7 +165,7 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("Select album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista as IdArtista, " +
+                using (var command = new NpgsqlCommand("SELECT album.id, album.nome as NomeAlbum, album.anolancamento as AnoLancamento, album.idartista as IdArtista, " +
                                                        "musica.nome as NomeMusica, musica.ordem as OrdemMusica, musica.id as idMusica, musica.idalbum as musicaIdAlbum " +
                                                        "FROM album " +
                                                        "LEFT JOIN musica ON album.id = musica.idalbum", connection))
@@ -184,16 +182,14 @@ namespace Infrastructure.Repository
                                 Nome = (string)reader["NomeAlbum"],
                                 AnoLancamento = (int)reader["AnoLancamento"],
                                 IdArtista = (int)reader["IdArtista"],
-                                Musicas = new List<Musica>()
+                                Musicas = new List<string>()
                             };
 
                             if (reader["NomeMusica"] != DBNull.Value)
                             {
                                 string musicaNome = (string)reader["NomeMusica"];
-                                int idMusica = (int)reader["IdMusica"];
-                                int ordem = (int)reader["OrdemMusica"];
-                                int idAlbum = (int)reader["id"];
-                                album.Musicas.Add(new Musica { Id = idMusica, Nome = musicaNome, Ordem = ordem, IdAlbum = idAlbum });
+
+                                album.Musicas.Add(musicaNome);
                             }
                             Albuns.Add(album);
                         }

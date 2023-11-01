@@ -14,6 +14,8 @@ namespace Infrastructure.Interfaces
 
         Task<List<Musica>> GetEntityByName(string TrechoNomeMusica);
 
+        Task<Musica> GetByOrdemIdAlbum(int ordem, int IdAlbum);
+
         Task<List<Musica>> List();
     }
 }

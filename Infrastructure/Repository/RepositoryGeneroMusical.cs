@@ -35,7 +35,7 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("SELECT * FROM GeneroMusical Where Id = @IdGenero", connection))
+                using (var command = new NpgsqlCommand("SELECT * FROM GeneroMusical WHERE Id = @IdGenero", connection))
                 {
                     command.Parameters.AddWithValue("IdGenero", Id);
 
@@ -62,7 +62,7 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("SELECT * FROM generomusical Where nome = @nomegenero", connection))
+                using (var command = new NpgsqlCommand("SELECT * FROM generomusical WHERE nome = @nomegenero", connection))
                 {
                     command.Parameters.AddWithValue("nomegenero", NomeGeneroMusical);
 
@@ -81,6 +81,7 @@ namespace Infrastructure.Repository
                 }
             }
             return null;
+
         }
 
         public async Task<List<GeneroMusical>> List()
@@ -117,7 +118,7 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("UPDATE generomusical Set nome = @nome where Id = @id", connection))
+                using (var command = new NpgsqlCommand("UPDATE generomusical SET nome = @nome WHERE Id = @id", connection))
                 {
                     command.Parameters.AddWithValue("nome", NovoNome);
                     command.Parameters.AddWithValue("id", Id);

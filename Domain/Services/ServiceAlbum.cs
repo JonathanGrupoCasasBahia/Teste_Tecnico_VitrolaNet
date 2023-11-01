@@ -17,19 +17,18 @@ namespace Domain.Services
 
         public async Task Add(string NomeAlbum, int AnoLancamentoAlbum, int IdArtista)
         {
+            var artistaExiste = await _IRepositoryArtista.GetEntityByID(IdArtista);
+
+
             if (string.IsNullOrWhiteSpace(NomeAlbum) || NomeAlbum.Length > 20)
             {
                 throw new ArgumentException("Nome do album inválido.");
             }
-
-            if (AnoLancamentoAlbum.ToString().Length != 4)
+            else if (AnoLancamentoAlbum.ToString().Length != 4)
             {
                 throw new ArgumentException("Ano de lançamento deve conter 4 caracteres.");
             }
-
-            var artistaExiste = await _IRepositoryArtista.GetEntityByID(IdArtista);
-
-            if (artistaExiste == null)
+            else if (artistaExiste == null)
             {
                 throw new ArgumentException("O artista não existe.");
             }
@@ -51,7 +50,7 @@ namespace Domain.Services
             {
                 throw new ArgumentException("O album não existe.");
             }
-            if (albumExiste.Musicas.Count > 0)
+            else if (albumExiste.Musicas.Count > 0)
             {
                 throw new ArgumentException("Permitida a exclusão do album apenas se o mesmo estiver vazio.");
             }
@@ -67,6 +66,7 @@ namespace Domain.Services
             {
                 throw new ArgumentException("O album não existe.");
             }
+
             return await _IRepositoryAlbum.GetEntityByID(Id);
         }
 
@@ -78,6 +78,7 @@ namespace Domain.Services
             {
                 throw new ArgumentException("O album não existe.");
             }
+
             return await _IRepositoryAlbum.GetEntityByName(NomeAlbum);
         }
 
@@ -88,19 +89,17 @@ namespace Domain.Services
 
         public async Task Update(int IdAlbum, string NovoNomeAlbum, int NovoAnoLancamentoAlbum, int NovoIdArtista)
         {
+            var artistaExiste = await _IRepositoryArtista.GetEntityByID(NovoIdArtista);
+
             if (string.IsNullOrWhiteSpace(NovoNomeAlbum) || NovoNomeAlbum.Length > 20)
             {
                 throw new ArgumentException("Nome do album inválido.");
             }
-
-            if (NovoAnoLancamentoAlbum.ToString().Length != 4)
+            else if (NovoAnoLancamentoAlbum.ToString().Length != 4)
             {
                 throw new ArgumentException("Ano de lançamento deve conter 4 caracteres.");
             }
-
-            var artistaExiste = await _IRepositoryArtista.GetEntityByID(NovoIdArtista);
-
-            if (artistaExiste == null)
+            else if (artistaExiste == null)
             {
                 throw new ArgumentException("O artista não existe.");
             }

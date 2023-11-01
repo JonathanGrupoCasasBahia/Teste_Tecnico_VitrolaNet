@@ -1,6 +1,7 @@
 ﻿using Domain.Interfaces;
 using Entities.Entities;
 using Infrastructure.Interfaces;
+using System.Runtime.Intrinsics.Arm;
 
 namespace Domain.Services
 {
@@ -17,16 +18,21 @@ namespace Domain.Services
 
         public async Task Add(string NomeMusica, int Ordem, int IdAlbum)
         {
-            if(string.IsNullOrWhiteSpace(NomeMusica) || NomeMusica.Length > 30)
-            {
-                throw new ArgumentException("Nome da música inválido.");
-            }            
-
             var albumExiste = await _IRepositoryAlbum.GetEntityByID(IdAlbum);
 
-            if(albumExiste == null)
+            var ordemExiste = await _IRepositoryMusica.GetByOrdemIdAlbum(Ordem, IdAlbum);
+
+            if (string.IsNullOrWhiteSpace(NomeMusica) || NomeMusica.Length > 30)
+            {
+                throw new ArgumentException("Nome da música inválido.");
+            }
+            else if (albumExiste == null)
             {
                 throw new ArgumentException("Album informado não existe.");
+            }
+            else if(ordemExiste != null)
+            {
+                throw new ArgumentException("Ordem informada já existe no album.");
             }
 
             await _IRepositoryMusica.Add(NomeMusica, Ordem, IdAlbum);
@@ -36,15 +42,13 @@ namespace Domain.Services
         public async Task Delete(int Id, int IdAlbum)
         {
             var albumExiste = await _IRepositoryAlbum.GetEntityByID(IdAlbum);
+            var musicaExiste = await _IRepositoryMusica.GetEntityByID(Id);
 
-            if(albumExiste == null)
+            if (albumExiste == null)
             {
                 throw new ArgumentException("Album não existe.");
             }
-
-            var musicaExiste = await _IRepositoryMusica.GetEntityByID(Id);
-
-            if(musicaExiste == null)
+            else if(musicaExiste == null)
             {
                 throw new ArgumentException("Musica não existe");
             }
@@ -69,16 +73,19 @@ namespace Domain.Services
             {
                 throw new ArgumentException("Musica não existe");
             }
+
             return await _IRepositoryMusica.GetEntityByID(Id);
         }
 
         public async Task<List<Musica>> GetEntityByName(string TrechoNomeMusica)
         {
             var musicaExiste = await _IRepositoryMusica.GetEntityByName(TrechoNomeMusica);
+
             if (musicaExiste == null)
             {
                 throw new ArgumentException("Musica não existe.");
             }
+
             return await _IRepositoryMusica.GetEntityByName(TrechoNomeMusica);
         }
 
@@ -90,16 +97,22 @@ namespace Domain.Services
         public async Task Update(int Id, string NovoNomeMusica, int NovaOrdem, int NovoIdAlbum)
         {
             var musicaExiste = await _IRepositoryMusica.GetEntityByID(Id);
+
+            var ordemExiste = await _IRepositoryMusica.GetByOrdemIdAlbum(NovaOrdem, NovoIdAlbum);
+
+            var novoAlbumExiste = await _IRepositoryAlbum.GetEntityByID(NovoIdAlbum);
+
             if (musicaExiste == null)
             {
                 throw new ArgumentException("Musica não existe.");
             }
-            
-            var novoAlbumExiste = await _IRepositoryAlbum.GetEntityByID(NovoIdAlbum);
-
-            if (novoAlbumExiste == null)
+            else if (novoAlbumExiste == null)
             {
                 throw new ArgumentException("Album não existe.");
+            }
+            else if (ordemExiste != null)
+            {
+                throw new ArgumentException("Ordem informada já existe no album.");
             }
 
             await _IRepositoryMusica.Update(Id, NovoNomeMusica, NovaOrdem, NovoIdAlbum);

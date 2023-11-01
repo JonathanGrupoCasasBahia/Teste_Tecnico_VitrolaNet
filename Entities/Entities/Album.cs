@@ -10,6 +10,6 @@
 
         public int IdArtista { get; set; }
 
-        public List<Musica> Musicas { get; set; }
+        public List<string> Musicas { get; set; }
     }
 }

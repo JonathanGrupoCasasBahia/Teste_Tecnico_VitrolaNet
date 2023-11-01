@@ -15,12 +15,14 @@ namespace Domain.Services
         
         public async Task Add(string NomeGeneroMusical)
         {
+            var generoExiste = await _IRepositoryGeneroMusical.GetEntityByName(NomeGeneroMusical);
+
+
             if (string.IsNullOrWhiteSpace(NomeGeneroMusical) || NomeGeneroMusical.Length >20)
             {
                 throw new ArgumentException("Nome do gênero musical inválido.");
-            }
-            var generoExiste = await _IRepositoryGeneroMusical.GetEntityByName(NomeGeneroMusical);
-            if (generoExiste != null)
+            }            
+            else if (generoExiste != null)
             {
                 throw new InvalidOperationException("O gênero musical já existe no catálogo.");
             }
@@ -33,6 +35,7 @@ namespace Domain.Services
         public async Task<GeneroMusical> GetEntityByID(int Id)
         {
             var generoExiste = await _IRepositoryGeneroMusical.GetEntityByID(Id);
+
             if (generoExiste == null)
             {
                 throw new InvalidOperationException("O gênero musical não existe no catálogo.");
@@ -48,22 +51,21 @@ namespace Domain.Services
 
         public async Task Update(int Id, string NovoNomeGeneroMusical)
         {
+            var generoExiste = await _IRepositoryGeneroMusical.GetEntityByID(Id);
+            var novoNomeGerenoExiste = await _IRepositoryGeneroMusical.GetEntityByName(NovoNomeGeneroMusical);
+
             if (string.IsNullOrWhiteSpace(NovoNomeGeneroMusical) || NovoNomeGeneroMusical.Length > 20)
             {
                 throw new ArgumentException("Nome do gênero musical inválido.");
-            }
-            var generoExiste = await _IRepositoryGeneroMusical.GetEntityByID(Id);
-            if (generoExiste == null)
+            }            
+            else if (generoExiste == null)
             {
                 throw new InvalidOperationException("O gênero musical não existe no catálogo.");
             }
-            var novoNomeGerenoExiste = await _IRepositoryGeneroMusical.GetEntityByName(NovoNomeGeneroMusical);
-
-            if (novoNomeGerenoExiste != null)
+            else if (novoNomeGerenoExiste != null)
             {
                 throw new InvalidOperationException("O novo nome do gênero musical já existe no catálogo.");
             }
-
 
             generoExiste.Nome = NovoNomeGeneroMusical;
 

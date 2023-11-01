@@ -18,6 +18,7 @@ namespace Infrastructure.Repository
             using(var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
+
                 using (var command = new NpgsqlCommand("INSERT INTO musica (nome,ordem,idAlbum) VALUES " +
                                                        "(@nomeMusica, @ordemMusica, @idDoAlbum)", connection))
                 {
@@ -35,8 +36,9 @@ namespace Infrastructure.Repository
             using( var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
+
                 using( var command = new NpgsqlCommand("UPDATE musica SET nome = @novoNome, ordem = @novaOrdem, idalbum = @novoIdAlbum " +
-                                                       "where id = @id", connection))
+                                                       "WHERE id = @id", connection))
                 {
                     command.Parameters.AddWithValue("novoNome", NovoNomeMusica);
                     command.Parameters.AddWithValue("novaOrdem", NovaOrdem);
@@ -53,9 +55,11 @@ namespace Infrastructure.Repository
             using(var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                using( var command = new NpgsqlCommand("DELETE from musica where id = @idMusica", connection))
+
+                using( var command = new NpgsqlCommand("DELETE FROM musica WHERE id = @idMusica", connection))
                 {
                     command.Parameters.AddWithValue("idMusica", Id);
+
                     await command.ExecuteNonQueryAsync();
                 }
             }
@@ -66,14 +70,16 @@ namespace Infrastructure.Repository
             using(var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                using(var command = new NpgsqlCommand("select * from musica where id = @idMusica", connection))
+
+                using(var command = new NpgsqlCommand("SELECT * FROM musica WHERE id = @idMusica", connection))
                 {
                     command.Parameters.AddWithValue("idMusica", Id);
 
-                    using(var reader  = command.ExecuteReader())
+                    using(var reader  = await command.ExecuteReaderAsync())
                     {
                         Musica musica = null;
-                        while (reader.Read())
+
+                        while (await reader.ReadAsync())
                         {
                             musica = new Musica()
                             {
@@ -82,7 +88,39 @@ namespace Infrastructure.Repository
                                 Ordem = (int)reader["ordem"],
                                 IdAlbum = (int)reader["idalbum"]
                             };
-                        }return musica;
+                        }
+                        return musica;
+                    }
+                }
+            }
+        }
+
+        public async Task<Musica> GetByOrdemIdAlbum(int ordem, int IdAlbum)
+        {
+            using (var connection = new NpgsqlConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (var command = new NpgsqlCommand("SELECT * FROM musica WHERE ordem = @ordem AND idalbum = @idalbum", connection))
+                {
+                    command.Parameters.AddWithValue("ordem", ordem);
+                    command.Parameters.AddWithValue("idalbum", IdAlbum);
+
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        Musica musica = null;
+
+                        while (await reader.ReadAsync())
+                        {
+                            musica = new Musica()
+                            {
+                                Id = (int)reader["id"],
+                                Nome = (string)reader["nome"],
+                                Ordem = (int)reader["ordem"],
+                                IdAlbum = (int)reader["idalbum"]
+                            };
+                        }
+                        return musica;
                     }
                 }
             }
@@ -93,9 +131,11 @@ namespace Infrastructure.Repository
             using(var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                using (var command = new NpgsqlCommand("Select * from musica where musica.nome like '%' || @trechoNomeMusica || '%'", connection))
+
+                using (var command = new NpgsqlCommand("SELECT * FROM musica WHERE musica.nome LIKE '%' || @trechoNomeMusica || '%'", connection))
                 {
                     command.Parameters.AddWithValue("trechoNomeMusica", TrechoNomeMusica);
+
                     using(var reader = await command.ExecuteReaderAsync())
                     {
                         var Musicas = new List<Musica>();
@@ -123,7 +163,8 @@ namespace Infrastructure.Repository
             using(var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                using (var command = new NpgsqlCommand("select * from musica", connection))
+
+                using (var command = new NpgsqlCommand("SELECT * FROM musica", connection))
                 {
                     using(var reader =  await command.ExecuteReaderAsync())
                     {
@@ -136,8 +177,9 @@ namespace Infrastructure.Repository
                                 Id = (int)reader["id"],
                                 Nome = (string)reader["nome"],
                                 IdAlbum = (int)reader["idalbum"],
-                                Ordem = (int)reader["ordem"],
+                                Ordem = (int)reader["ordem"], 
                             };
+
                             Musicas.Add(musica);
                         }
                         return Musicas;
