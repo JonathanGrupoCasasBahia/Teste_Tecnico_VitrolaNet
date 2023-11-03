@@ -43,24 +43,23 @@ namespace Infrastructure.Configuration
                     CREATE TABLE IF NOT EXISTS Artista (
                         Id serial PRIMARY KEY,
                         Nome character varying(20) NOT NULL,
-                        IdGenero integer, -- Coluna para a chave estrangeira
-                        FOREIGN KEY (IdGenero) REFERENCES GeneroMusical(Id) -- Definindo a chave estrangeira
+                        IdGenero integer,
+                        FOREIGN KEY (IdGenero) REFERENCES GeneroMusical(Id)
                     );
                     CREATE TABLE IF NOT EXISTS Album (
                         Id serial PRIMARY KEY,
                         Nome character varying(20) NOT NULL,
                         AnoLancamento integer NOT NULL,
-                        IdArtista integer, -- Coluna para a chave estrangeira
-                        FOREIGN KEY (IdArtista) REFERENCES Artista(Id) -- Definindo a chave estrangeira
+                        IdArtista integer,
+                        FOREIGN KEY (IdArtista) REFERENCES Artista(Id)
                     );                    
                     CREATE TABLE IF NOT EXISTS Musica (
                         Id serial PRIMARY KEY,
                         Nome character varying(20) NOT NULL,
                         Ordem integer NOT NULL,
-                        IdAlbum integer, -- Coluna para a chave estrangeira
-                        FOREIGN KEY (IdAlbum) REFERENCES Album(Id) -- Definindo a chave estrangeira
-                    );
-                ";
+                        IdAlbum integer,
+                        FOREIGN KEY (IdAlbum) REFERENCES Album(Id)
+                    );";
                     command.CommandText = createTablesSql;
                     command.ExecuteNonQuery();
                 }

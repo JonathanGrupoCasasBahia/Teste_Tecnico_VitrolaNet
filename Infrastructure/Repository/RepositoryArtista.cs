@@ -1,14 +1,13 @@
 ﻿using Entities.Entities;
 using Infrastructure.Interfaces;
 using Npgsql;
-using System.Data;
 
 namespace Infrastructure.Repository
 {
     public class RepositoryArtista : IRepositoryArtista
     {
         private readonly string _connectionString;
-        public RepositoryArtista(string connectionString) 
+        public RepositoryArtista(string connectionString)
         {
             _connectionString = connectionString;
         }
@@ -19,12 +18,23 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("INSERT INTO artista (nome, idgenero) VALUES (@nome,@idgenero)", connection))
+                using (var transaction = connection.BeginTransaction())
                 {
-                    command.Parameters.AddWithValue("nome", NomeArtista);
-                    command.Parameters.AddWithValue("idgenero", IdGenero);
+                    try
+                    {
+                        using (var command = new NpgsqlCommand("INSERT INTO artista (nome, idgenero) VALUES (@nome,@idgenero)", connection))
+                        {
+                            command.Parameters.AddWithValue("nome", NomeArtista);
+                            command.Parameters.AddWithValue("idgenero", IdGenero);
 
-                    await command.ExecuteNonQueryAsync();
+                            await command.ExecuteNonQueryAsync();
+                        }
+                        transaction.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                    }
                 }
             }
         }
@@ -35,65 +45,97 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("DELETE from artista where id = @idartista", connection))
+                using (var transaction = connection.BeginTransaction())
                 {
-                    command.Parameters.AddWithValue("idartista", Id);
+                    try
+                    {
+                        using (var command = new NpgsqlCommand("DELETE FROM artista WHERE id = @idartista", connection))
+                        {
+                            command.Parameters.AddWithValue("idartista", Id);
 
-                    await command.ExecuteNonQueryAsync();
-                }                
+                            await command.ExecuteNonQueryAsync();
+                        }
+                        transaction.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                    }
+                }
             }
         }
 
         public async Task<Artista> GetEntityByID(int Id)
         {
-            using(var connection = new NpgsqlConnection(_connectionString))
+            using (var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();
 
-                using( var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, " +
+                using (var command = new NpgsqlCommand("SELECT artista.id as idArtista, artista.nome as nomeArtista, " +
                                                        "generomusical.id as idGenero ,generomusical.nome as GeneroMusical, " +
-                                                       "album.nome as Nomealbum , album.id as idAlbum, album.anoLancamento as AnoLancamentoAlbum , album.idartista " +
+                                                       "album.nome as Nomealbum , album.id as idAlbum, album.anoLancamento as AnoLancamentoAlbum , album.idartista as albumIdArtista, " +
+                                                       "musica.id as idMusica, musica.nome as nomeMusica, musica.ordem as ordemMusica, musica.idalbum as musicaIdAlbum " +
                                                        "FROM artista " +
                                                        "INNER JOIN generomusical ON artista.idgenero = generomusical.id " +
                                                        "LEFT JOIN album ON artista.id = album.idartista " +
-                                                       "where artista.id = @id", connection))
+                                                       "LEFT JOIN musica ON album.id = musica.idalbum " +
+                                                       "WHERE artista.id = @id", connection))
                 {
                     command.Parameters.AddWithValue("id", Id);
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
-                        Artista artista = null;
+                        var dicionarioAlbum = new Dictionary<int, Album>();
 
                         while (await reader.ReadAsync())
                         {
-                            if (artista == null)
+                            Artista artista = new Artista()
                             {
-                                artista = new Artista()
-                                {
-                                    Id = (int)reader["id"],
-                                    Nome = (string)reader["nomeArtista"],
-                                    GeneroMusical = (string)reader["GeneroMusical"],
-                                    IdGenero = (int)reader["idgenero"],
-                                    Albuns = new List<Album>()
-                                };
-                            }
+                                Id = (int)reader["idArtista"],
+                                Nome = (string)reader["nomeArtista"],
+                                GeneroMusical = (string)reader["GeneroMusical"],
+                                IdGenero = (int)reader["idgenero"],
+                                Albuns = new List<Album>()
+                            };
+
                             if (reader["Nomealbum"] != DBNull.Value)
                             {
                                 int idAlbum = (int)reader["idAlbum"];
                                 string albumNome = (string)reader["Nomealbum"];
                                 int anoLancamento = (int)reader["AnoLancamentoAlbum"];
-                                int idArtista = (int)reader["idartista"];
+                                int albumIdArtista = (int)reader["albumIdArtista"];
 
-                                if (!string.IsNullOrWhiteSpace(albumNome))
+                                if (!dicionarioAlbum.TryGetValue(idAlbum, out Album album))
                                 {
-                                    artista.Albuns.Add(new Album { Nome = albumNome, IdAlbum = idAlbum, AnoLancamento = anoLancamento, IdArtista = idArtista });
+                                    album = new Album
+                                    {
+                                        IdAlbum = idAlbum,
+                                        Nome = albumNome,
+                                        AnoLancamento = anoLancamento,
+                                        IdArtista = albumIdArtista,
+                                        Musicas = new List<Musica>()
+                                    };
+                                    dicionarioAlbum.Add(idAlbum, album);
                                 }
+
+                                if (reader["nomeMusica"] != DBNull.Value)
+                                {
+                                    int idMusica = (int)reader["idMusica"];
+                                    string nomeMusica = (string)reader["nomeMusica"];
+                                    int ordemMusica = (int)reader["ordemMusica"];
+                                    int musicaIdAlbum = (int)reader["musicaIdAlbum"];
+
+                                    album.Musicas.Add(new Musica { Id = idMusica, Nome = nomeMusica, Ordem = ordemMusica, IdAlbum = musicaIdAlbum });
+                                }
+
+                                artista.Albuns.Add(album);
                             }
+                            return artista;
                         }
-                        return artista;
                     }
                 }
             }
+            return null;
         }
 
         public async Task<List<Artista>> GetEntityByName(string TrechoNome)
@@ -102,50 +144,88 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, " +
+                using (var command = new NpgsqlCommand("SELECT artista.id as idArtista, artista.nome as nomeArtista, " +
                                                        "generomusical.id as idGenero ,generomusical.nome as GeneroMusical, " +
-                                                       "album.nome as Nomealbum , album.id as idAlbum, album.anoLancamento as AnoLancamentoAlbum , album.idartista " +
+                                                       "album.nome as Nomealbum , album.id as idAlbum, album.anoLancamento as AnoLancamentoAlbum , album.idartista as albumIdArtista, " +
+                                                       "musica.id as idMusica, musica.nome as nomeMusica, musica.ordem as ordemMusica, musica.idalbum as musicaIdAlbum " +
                                                        "FROM artista " +
                                                        "INNER JOIN generomusical ON artista.idgenero = generomusical.id " +
                                                        "LEFT JOIN album ON artista.id = album.idartista " +
-                                                       "where artista.nome LIKE '%' || @trechoNome || '%'", connection))
+                                                       "LEFT JOIN musica ON musica.idalbum = album.id " +
+                                                       "WHERE artista.nome LIKE '%' || @trechoNome || '%'", connection))
                 {
                     command.Parameters.AddWithValue("trechoNome", TrechoNome);
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
-                        var Artistas = new List<Artista>();
+                        var dicionarioArtista = new Dictionary<int, Artista>();
+
+                        Artista artista;
 
                         while (await reader.ReadAsync())
                         {
-                            Artista artista = new Artista()
+                            int idArtista = (int)reader["idArtista"];
+
+                            if (!dicionarioArtista.TryGetValue(idArtista, out artista))
                             {
-                                Id = (int)reader["id"],
-                                Nome = (string)reader["nomeArtista"],
-                                GeneroMusical = (string)reader["GeneroMusical"],
-                                IdGenero = (int)reader["idgenero"],
-                                Albuns = new List<Album>()
-                            };
+                                artista = new Artista()
+                                {
+                                    Id = idArtista,
+                                    Nome = (string)reader["nomeArtista"],
+                                    GeneroMusical = (string)reader["GeneroMusical"],
+                                    IdGenero = (int)reader["idgenero"],
+                                    Albuns = new List<Album>()
+                                };
+
+                                dicionarioArtista.Add(idArtista, artista);
+                            }
 
                             if (reader["Nomealbum"] != DBNull.Value)
                             {
                                 int idAlbum = (int)reader["idAlbum"];
                                 string albumNome = (string)reader["Nomealbum"];
                                 int anoLancamento = (int)reader["AnoLancamentoAlbum"];
-                                int idArtista = (int)reader["idartista"];
+                                int albumIdArtista = (int)reader["albumIdArtista"];
 
-                                if (!string.IsNullOrWhiteSpace(albumNome))
+                                var album = artista.Albuns.FirstOrDefault(album => album.IdAlbum == idAlbum);
+
+                                if (album == null)
                                 {
-                                    artista.Albuns.Add(new Album { Nome = albumNome, IdAlbum = idAlbum, AnoLancamento = anoLancamento, IdArtista = idArtista });
+                                    album = new Album
+                                    {
+                                        IdAlbum = idAlbum,
+                                        Nome = albumNome,
+                                        AnoLancamento = anoLancamento,
+                                        IdArtista = albumIdArtista,
+                                        Musicas = new List<Musica>()
+                                    };
+
+                                    if (reader["nomeMusica"] != DBNull.Value)
+                                    {
+                                        int idMusica = (int)reader["idMusica"];
+                                        string nomeMusica = (string)reader["nomeMusica"];
+                                        int ordemMusica = (int)reader["ordemMusica"];
+                                        int musicaIdAlbum = (int)reader["musicaIdAlbum"];
+
+                                        album.Musicas.Add(new Musica { Id = idMusica, Nome = nomeMusica, Ordem = ordemMusica, IdAlbum = musicaIdAlbum });
+                                    }
+                                    artista.Albuns.Add(album);
+                                }
+                                else if (reader["nomeMusica"] != DBNull.Value)
+                                {
+                                    int idMusica = (int)reader["idMusica"];
+                                    string nomeMusica = (string)reader["nomeMusica"];
+                                    int ordemMusica = (int)reader["ordemMusica"];
+                                    int musicaIdAlbum = (int)reader["musicaIdAlbum"];
+
+                                    album.Musicas.Add(new Musica { Id = idMusica, Nome = nomeMusica, Ordem = ordemMusica, IdAlbum = musicaIdAlbum });
                                 }
                             }
-                            Artistas.Add(artista);
                         }
-                        return Artistas;
+                        return dicionarioArtista.Values.ToList();
                     }
                 }
             }
-            
         }
 
         public async Task<List<Artista>> List()
@@ -154,43 +234,79 @@ namespace Infrastructure.Repository
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("SELECT artista.id, artista.nome as nomeArtista, " +
+                using (var command = new NpgsqlCommand("SELECT artista.id as idArtista, artista.nome as nomeArtista, " +
                                                        "generomusical.id as idGenero ,generomusical.nome as GeneroMusical, " +
-                                                       "album.nome as Nomealbum , album.id as idAlbum, album.anoLancamento as AnoLancamentoAlbum , album.idartista " +
+                                                       "album.nome as Nomealbum , album.id as idAlbum, album.anoLancamento as AnoLancamentoAlbum , album.idartista as albumIdArtista, " +
+                                                       "musica.id as idMusica, musica.nome as nomeMusica, musica.ordem as ordemMusica, musica.idalbum as musicaIdAlbum " +
                                                        "FROM artista " +
                                                        "INNER JOIN generomusical ON artista.idgenero = generomusical.id " +
-                                                       "LEFT JOIN album ON artista.id = album.idartista", connection))
+                                                       "LEFT JOIN album ON artista.id = album.idartista " +
+                                                       "LEFT JOIN musica ON musica.idalbum = album.id", connection))
                 {
                     using (var reader = await command.ExecuteReaderAsync())
                     {
-                        var Artistas = new List<Artista>();
+                        var dicionarioArtista = new Dictionary<int, Artista>();
+                        Artista artista;
 
                         while (await reader.ReadAsync())
                         {
-                            Artista artista = new Artista()
+                            int idArtista = (int)reader["idArtista"];
+
+                            if (!dicionarioArtista.TryGetValue(idArtista, out artista))
                             {
-                                Id = (int)reader["id"],
-                                Nome = (string)reader["nomeArtista"],
-                                GeneroMusical = (string)reader["GeneroMusical"],
-                                IdGenero = (int)reader["idgenero"],
-                                Albuns = new List<Album>()
-                            };
+                                artista = new Artista()
+                                {
+                                    Id = idArtista,
+                                    Nome = (string)reader["nomeArtista"],
+                                    GeneroMusical = (string)reader["GeneroMusical"],
+                                    IdGenero = (int)reader["idgenero"],
+                                    Albuns = new List<Album>()
+                                };
+
+                                dicionarioArtista.Add(idArtista, artista);
+                            }
 
                             if (reader["Nomealbum"] != DBNull.Value)
                             {
                                 int idAlbum = (int)reader["idAlbum"];
                                 string albumNome = (string)reader["Nomealbum"];
                                 int anoLancamento = (int)reader["AnoLancamentoAlbum"];
-                                int idArtista = (int)reader["idartista"];
 
-                                if (!string.IsNullOrWhiteSpace(albumNome))
+                                var album = artista.Albuns.FirstOrDefault(a => a.IdAlbum == idAlbum);
+
+                                if (album == null)
                                 {
-                                    artista.Albuns.Add(new Album { Nome = albumNome, IdAlbum = idAlbum, AnoLancamento = anoLancamento, IdArtista = idArtista });
+                                    album = new Album
+                                    {
+                                        IdAlbum = idAlbum,
+                                        Nome = albumNome,
+                                        AnoLancamento = anoLancamento,
+                                        IdArtista = idArtista,
+                                        Musicas = new List<Musica>()
+                                    };
+                                    if (reader["nomeMusica"] != DBNull.Value)
+                                    {
+                                        int idMusica = (int)reader["idMusica"];
+                                        string nomeMusica = (string)reader["nomeMusica"];
+                                        int ordemMusica = (int)reader["ordemMusica"];
+                                        int musicaIdAlbum = (int)reader["musicaIdAlbum"];
+
+                                        album.Musicas.Add(new Musica { Id = idMusica, Nome = nomeMusica, Ordem = ordemMusica, IdAlbum = musicaIdAlbum });
+                                    }
+                                    artista.Albuns.Add(album);
+                                }
+                                else if (reader["nomeMusica"] != DBNull.Value.ToString())
+                                {
+                                    int idMusica = (int)reader["idMusica"];
+                                    string nomeMusica = (string)reader["nomeMusica"];
+                                    int ordemMusica = (int)reader["ordemMusica"];
+                                    int musicaIdAlbum = (int)reader["musicaIdAlbum"];
+
+                                    album.Musicas.Add(new Musica { Id = idMusica, Nome = nomeMusica, Ordem = ordemMusica, IdAlbum = musicaIdAlbum });
                                 }
                             }
-                            Artistas.Add(artista);
                         }
-                        return Artistas;
+                        return dicionarioArtista.Values.ToList();
                     }
                 }
             }
@@ -198,17 +314,28 @@ namespace Infrastructure.Repository
 
         public async Task Update(int Id, string NovoNomeArtista, int NovoIdGenero)
         {
-            using var connection = new Npgsql.NpgsqlConnection(_connectionString);
+            using var connection = new NpgsqlConnection(_connectionString);
             {
                 await connection.OpenAsync();
 
-                using (var command = new NpgsqlCommand("UPDATE artista SET nome = @novoNome, idgenero = @novoIdGenero where id = @id", connection))
+                using (var transaction = connection.BeginTransaction())
                 {
-                    command.Parameters.AddWithValue("novoNome", NovoNomeArtista);
-                    command.Parameters.AddWithValue("novoIdGenero", NovoIdGenero);
-                    command.Parameters.AddWithValue("id", Id);
+                    try
+                    {
+                        using (var command = new NpgsqlCommand("UPDATE artista SET nome = @novoNome, idgenero = @novoIdGenero WHERE id = @id", connection))
+                        {
+                            command.Parameters.AddWithValue("novoNome", NovoNomeArtista);
+                            command.Parameters.AddWithValue("novoIdGenero", NovoIdGenero);
+                            command.Parameters.AddWithValue("id", Id);
 
-                    await command.ExecuteNonQueryAsync();
+                            await command.ExecuteNonQueryAsync();
+                        }
+                        transaction.Commit();
+                    }
+                    catch (Exception)
+                    {
+                        transaction.Rollback();
+                    }
                 }
             }
         }

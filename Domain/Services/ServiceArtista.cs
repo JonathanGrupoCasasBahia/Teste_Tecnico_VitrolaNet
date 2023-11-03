@@ -17,14 +17,13 @@ namespace Domain.Services
 
         public async Task Add(string NomeArtista, int IdGenero)
         {
+            var generoExiste = await _IRepositoryGeneroMusical.GetEntityByID(IdGenero);
+
             if (string.IsNullOrWhiteSpace(NomeArtista) || NomeArtista.Length > 50)
             {
                 throw new ArgumentException("Nome do artista inválido.");
             }
-
-            var generoExiste = await _IRepositoryGeneroMusical.GetEntityByID(IdGenero);
-
-            if (generoExiste == null) 
+            else if (generoExiste == null) 
             {
                 throw new ArgumentException("O gênero musical não existe no catálogo.");
             }
@@ -48,19 +47,25 @@ namespace Domain.Services
 
         public async Task<Artista> GetEntityByID(int Id)
         {
-            if (_IRepositoryArtista.GetEntityByID == null)
+            var artistaExiste = await _IRepositoryArtista.GetEntityByID(Id);
+
+            if (artistaExiste == null)
             {
                 throw new ArgumentException("Id não encontrado.");
             }
-                return await _IRepositoryArtista.GetEntityByID(Id);
+
+            return await _IRepositoryArtista.GetEntityByID(Id);
         }
 
         public async Task<List<Artista>> GetEntityByName(string TrechoNome)
         {
-            if(_IRepositoryArtista.GetEntityByName == null)
+            var artistaExiste = await _IRepositoryArtista.GetEntityByName(TrechoNome);
+
+            if(artistaExiste.Count == 0)
             {
                 throw new ArgumentException ("Artista não existe.");
             }
+
             return await _IRepositoryArtista.GetEntityByName(TrechoNome);
         }
 
@@ -72,15 +77,13 @@ namespace Domain.Services
         public async Task Update(int Id, string NovoNomeArtista, int NovoIdGenero)
         {
             var artistaExiste = await _IRepositoryArtista.GetEntityByID(Id);
+            var generoExiste = await _IRepositoryGeneroMusical.GetEntityByID(NovoIdGenero);
 
             if (artistaExiste == null)
             {
                 throw new InvalidOperationException("O artista não existe.");
             }
-
-            var generoExiste = await _IRepositoryGeneroMusical.GetEntityByID(NovoIdGenero);
-
-            if (generoExiste == null)
+            else if (generoExiste == null)
             {
                 throw new ArgumentException("O gênero musical não existe no catálogo.");
             }

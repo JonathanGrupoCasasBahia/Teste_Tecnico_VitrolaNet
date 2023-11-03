@@ -17,14 +17,13 @@ namespace Domain.Services
 
         public async Task Add(string NomeMusica, int Ordem, int IdAlbum)
         {
-            if(string.IsNullOrWhiteSpace(NomeMusica) || NomeMusica.Length > 30)
-            {
-                throw new ArgumentException("Nome da música inválido.");
-            }            
-
             var albumExiste = await _IRepositoryAlbum.GetEntityByID(IdAlbum);
 
-            if(albumExiste == null)
+            if (string.IsNullOrWhiteSpace(NomeMusica) || NomeMusica.Length > 30)
+            {
+                throw new ArgumentException("Nome da música inválido.");
+            }
+            else if(albumExiste == null)
             {
                 throw new ArgumentException("Album informado não existe.");
             }
@@ -33,31 +32,23 @@ namespace Domain.Services
 
         }
 
-        public async Task Delete(int Id, int IdAlbum)
+        public async Task Delete(int IdMusica, int IdAlbum)
         {
-            var albumExiste = await _IRepositoryAlbum.GetEntityByID(IdAlbum);
+            var musicaEAlbumExiste = await _IRepositoryMusica.GetEntityByIDMusicaIdAlbum(IdMusica,IdAlbum);
+            var MusicasNoAlbum = await _IRepositoryAlbum.GetEntityByID(IdAlbum);
 
-            if(albumExiste == null)
+            if (musicaEAlbumExiste == null)
             {
-                throw new ArgumentException("Album não existe.");
-            }
-
-            var musicaExiste = await _IRepositoryMusica.GetEntityByID(Id);
-
-            if(musicaExiste == null)
+                throw new ArgumentException("Musica não pertence ao album.");
+            }            
+            else if(MusicasNoAlbum.Musicas.Count == 1) 
             {
-                throw new ArgumentException("Musica não existe");
-            }
-            
-            if(albumExiste.Musicas.Count == 1) 
-            {
-                await _IRepositoryMusica.Delete(Id);
+                await _IRepositoryMusica.Delete(IdMusica);
                 await _IRepositoryAlbum.Delete(IdAlbum);
-                
             }
-            if(albumExiste.Musicas.Count > 1)
+            else if(MusicasNoAlbum.Musicas.Count > 1)
             {
-                await _IRepositoryMusica.Delete(Id);
+                await _IRepositoryMusica.Delete(IdMusica);
             }
         }
 
@@ -69,16 +60,19 @@ namespace Domain.Services
             {
                 throw new ArgumentException("Musica não existe");
             }
+
             return await _IRepositoryMusica.GetEntityByID(Id);
         }
 
         public async Task<List<Musica>> GetEntityByName(string TrechoNomeMusica)
         {
             var musicaExiste = await _IRepositoryMusica.GetEntityByName(TrechoNomeMusica);
-            if (musicaExiste == null)
+
+            if (musicaExiste.Count == 0)
             {
                 throw new ArgumentException("Musica não existe.");
             }
+
             return await _IRepositoryMusica.GetEntityByName(TrechoNomeMusica);
         }
 
@@ -90,14 +84,13 @@ namespace Domain.Services
         public async Task Update(int Id, string NovoNomeMusica, int NovaOrdem, int NovoIdAlbum)
         {
             var musicaExiste = await _IRepositoryMusica.GetEntityByID(Id);
+            var novoAlbumExiste = await _IRepositoryAlbum.GetEntityByID(NovoIdAlbum);
+
             if (musicaExiste == null)
             {
                 throw new ArgumentException("Musica não existe.");
             }
-            
-            var novoAlbumExiste = await _IRepositoryAlbum.GetEntityByID(NovoIdAlbum);
-
-            if (novoAlbumExiste == null)
+            else if (novoAlbumExiste == null)
             {
                 throw new ArgumentException("Album não existe.");
             }
