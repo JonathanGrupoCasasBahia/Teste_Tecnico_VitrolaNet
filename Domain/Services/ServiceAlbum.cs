@@ -83,14 +83,25 @@ namespace Domain.Services
 
         public async Task<List<Album>> List()
         {
+            var verificaAlbuns = await _IRepositoryAlbum.List();
+
+            if(verificaAlbuns.Count == 0)
+            {
+                throw new ArgumentException("Lista de albuns vazia");
+            }
             return await _IRepositoryAlbum.List();
         }
 
         public async Task Update(int IdAlbum, string NovoNomeAlbum, int NovoAnoLancamentoAlbum, int NovoIdArtista)
         {
             var artistaExiste = await _IRepositoryArtista.GetEntityByID(NovoIdArtista);
+            var albumExiste = await _IRepositoryAlbum.GetEntityByID(IdAlbum);
 
-            if (string.IsNullOrWhiteSpace(NovoNomeAlbum) || NovoNomeAlbum.Length > 20)
+            if (albumExiste == null)
+            {
+                throw new ArgumentException("O album não existe.");
+            }
+            else if (string.IsNullOrWhiteSpace(NovoNomeAlbum) || NovoNomeAlbum.Length > 20)
             {
                 throw new ArgumentException("Nome do album inválido.");
             }

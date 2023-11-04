@@ -72,7 +72,7 @@ namespace Infrastructure.Repository
             }
         }
 
-        public async Task Delete(int Id)
+        public async Task Delete(int Id, int IdAlbum)
         {
             using(var connection = new NpgsqlConnection(_connectionString))
             {
@@ -81,9 +81,10 @@ namespace Infrastructure.Repository
                 {
                     try
                     {
-                        using (var command = new NpgsqlCommand("DELETE FROM musica WHERE id = @idMusica", connection))
+                        using (var command = new NpgsqlCommand("DELETE FROM musica WHERE id = @idMusica AND idalbum = @idAlbum", connection))
                         {
                             command.Parameters.AddWithValue("idMusica", Id);
+                            command.Parameters.AddWithValue("idalbum", IdAlbum);
 
                             await command.ExecuteNonQueryAsync();
                         }

@@ -43,12 +43,12 @@ namespace Domain.Services
             }            
             else if(MusicasNoAlbum.Musicas.Count == 1) 
             {
-                await _IRepositoryMusica.Delete(IdMusica);
+                await _IRepositoryMusica.Delete(IdMusica,IdAlbum);
                 await _IRepositoryAlbum.Delete(IdAlbum);
             }
             else if(MusicasNoAlbum.Musicas.Count > 1)
             {
-                await _IRepositoryMusica.Delete(IdMusica);
+                await _IRepositoryMusica.Delete(IdMusica, IdAlbum);
             }
         }
 
@@ -58,7 +58,7 @@ namespace Domain.Services
 
             if (musicaExiste == null)
             {
-                throw new ArgumentException("Musica não existe");
+                throw new ArgumentException("Musica não existe.");
             }
 
             return await _IRepositoryMusica.GetEntityByID(Id);
@@ -78,6 +78,13 @@ namespace Domain.Services
 
         public async Task<List<Musica>> List()
         {
+            var verificaLista = await _IRepositoryMusica.List();
+
+            if(verificaLista.Count == 0)
+            {
+                throw new ArgumentException("Lista de musicas vazia");
+            }
+
             return await _IRepositoryMusica.List();
         }
 
@@ -86,7 +93,11 @@ namespace Domain.Services
             var musicaExiste = await _IRepositoryMusica.GetEntityByID(Id);
             var novoAlbumExiste = await _IRepositoryAlbum.GetEntityByID(NovoIdAlbum);
 
-            if (musicaExiste == null)
+            if(string.IsNullOrWhiteSpace(NovoNomeMusica) || NovoNomeMusica.Length > 30)
+            {
+                throw new ArgumentException("Nome da nova música inválido.");
+            }
+            else if (musicaExiste == null)
             {
                 throw new ArgumentException("Musica não existe.");
             }

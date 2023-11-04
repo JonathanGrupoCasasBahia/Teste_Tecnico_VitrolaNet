@@ -8,7 +8,7 @@ namespace Infrastructure.Interfaces
 
         Task Update(int Id, string NovoNomeMusica, int NovaOrdem, int NovoIdAlbum);
 
-        Task Delete(int Id);
+        Task Delete(int Id, int IdAlbum);
 
         Task<Musica> GetEntityByID(int Id);
 

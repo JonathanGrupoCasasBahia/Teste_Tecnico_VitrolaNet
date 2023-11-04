@@ -23,7 +23,7 @@ namespace Domain.Services
             }            
             else if (generoExiste != null)
             {
-                throw new InvalidOperationException("O gênero musical já existe no catálogo.");
+                throw new ArgumentException("O gênero musical já existe no catálogo.");
             }
 
             var novoGenero = new GeneroMusical { Nome = NomeGeneroMusical };
@@ -37,7 +37,7 @@ namespace Domain.Services
 
             if (generoExiste == null)
             {
-                throw new InvalidOperationException("O gênero musical não existe no catálogo.");
+                throw new ArgumentException("O gênero musical não existe no catálogo.");
             }
 
             return await _IRepositoryGeneroMusical.GetEntityByID(Id);
@@ -45,6 +45,13 @@ namespace Domain.Services
 
         public async Task<List<GeneroMusical>> List()
         {
+            var verificaLista = await _IRepositoryGeneroMusical.List();
+
+            if(verificaLista.Count() == 0)
+            {
+                throw new ArgumentException("Lista de generos vazia");
+            }
+
             return await _IRepositoryGeneroMusical.List();
         }
 
@@ -59,11 +66,11 @@ namespace Domain.Services
             }            
             else if (generoExiste == null)
             {
-                throw new InvalidOperationException("O gênero musical não existe no catálogo.");
+                throw new ArgumentException("O gênero musical não existe no catálogo.");
             }
             else if (novoNomeGerenoExiste != null)
             {
-                throw new InvalidOperationException("O novo nome do gênero musical já existe no catálogo.");
+                throw new ArgumentException("O novo nome do gênero musical já existe no catálogo.");
             }
 
             generoExiste.Nome = NovoNomeGeneroMusical;

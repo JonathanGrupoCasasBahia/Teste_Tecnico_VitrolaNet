@@ -51,7 +51,7 @@ namespace Domain.Services
 
             if (artistaExiste == null)
             {
-                throw new ArgumentException("Id não encontrado.");
+                throw new ArgumentException("Artista não existe.");
             }
 
             return await _IRepositoryArtista.GetEntityByID(Id);
@@ -71,6 +71,12 @@ namespace Domain.Services
 
         public async Task<List<Artista>> List()
         {
+            var verificaLista = await _IRepositoryArtista.List();
+
+            if(verificaLista.Count == 0)
+            {
+                throw new ArgumentException("Lista de artistas vazia.");
+            }
             return await _IRepositoryArtista.List();
         }
 
@@ -79,9 +85,13 @@ namespace Domain.Services
             var artistaExiste = await _IRepositoryArtista.GetEntityByID(Id);
             var generoExiste = await _IRepositoryGeneroMusical.GetEntityByID(NovoIdGenero);
 
-            if (artistaExiste == null)
+            if (string.IsNullOrWhiteSpace(NovoNomeArtista) || NovoNomeArtista.Length > 50)
             {
-                throw new InvalidOperationException("O artista não existe.");
+                throw new ArgumentException("Nome do artista inválido.");
+            }
+            else if (artistaExiste == null)
+            {
+                throw new ArgumentException("O artista não existe.");
             }
             else if (generoExiste == null)
             {
