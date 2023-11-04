@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Entities.Entities
+﻿namespace Entities.Entities
 {
     public class Musica
     {
@@ -15,7 +9,5 @@ namespace Entities.Entities
         public int Ordem { get; set; }
 
         public int IdAlbum { get; set; }
-
-        public Album Album { get; set;}
     }
 }
