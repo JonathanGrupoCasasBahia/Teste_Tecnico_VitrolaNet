@@ -150,6 +150,7 @@ namespace Infrastructure.Repository
 
         public async Task<List<Album>> GetEntityByName(string TrechoNomeAlbum)
         {
+            //TODO Dica: Usar um componente de conexão que atenda a vários tipos de BD. Caso haja mudança de SGBD não seria necessário mudar na aplicação, somente no config.
             using (var connection = new NpgsqlConnection(_connectionString))
             {
                 await connection.OpenAsync();

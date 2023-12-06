@@ -35,6 +35,7 @@ namespace Infrastructure.Configuration
                     connection.ChangeDatabase("VitrolaNet");
 
                     // Agora, você pode criar as tabelas no banco de dados "VitrolaNet"
+                    // TODO Usar Id e o nome da tabela. Ex: IdAlbum. Isso evita confusão quando esse for utilizado como FK em outra tabela
                     string createTablesSql = @"
                     CREATE TABLE IF NOT EXISTS GeneroMusical (
                         Id serial PRIMARY KEY,
@@ -42,7 +43,7 @@ namespace Infrastructure.Configuration
                     );
                     CREATE TABLE IF NOT EXISTS Artista (
                         Id serial PRIMARY KEY,
-                        Nome character varying(20) NOT NULL,
+                        Nome character varying(20) NOT NULL, --TODO OBS: Nesse caso seria 50 caractares
                         IdGenero integer,
                         FOREIGN KEY (IdGenero) REFERENCES GeneroMusical(Id)
                     );
@@ -55,7 +56,7 @@ namespace Infrastructure.Configuration
                     );                    
                     CREATE TABLE IF NOT EXISTS Musica (
                         Id serial PRIMARY KEY,
-                        Nome character varying(20) NOT NULL,
+                        Nome character varying(20) NOT NULL, --TODO OBS: Deveria ser 30 caracteres
                         Ordem integer NOT NULL,
                         IdAlbum integer,
                         FOREIGN KEY (IdAlbum) REFERENCES Album(Id)

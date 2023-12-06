@@ -4,6 +4,7 @@ using Infrastructure.Interfaces;
 
 namespace Domain.Services
 {
+    //TODO Dica: No nome das classe fazemos o inverso, nesse caso seria AlbumService
     public class ServiceAlbum : IServiceAlbum
     {
         private readonly IRepositoryAlbum _IRepositoryAlbum;
@@ -75,9 +76,11 @@ namespace Domain.Services
 
             if (albumExiste.Count == 0)
             {
+                //TODO Usando a exceção ele retorna o stack trace para usuário, e não devemos exibir isso para terceiros. O ideal é criar um objeto que consiga recebe a validação e dar uma resposta amigável.
                 throw new ArgumentException("O album não existe.");
             }
 
+            //TODO Invés de chamar o banco novamente poderia usar o retorna da variável albumExiste. Sempre que possível fazer o minimo de requisição ao BD.
             return await _IRepositoryAlbum.GetEntityByName(NomeAlbum);
         }
 
